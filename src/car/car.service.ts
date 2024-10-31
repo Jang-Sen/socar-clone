@@ -28,7 +28,7 @@ export class CarService {
     return result;
   }
 
-  // 차량 연료 or 분류로 찾는 로직
+  // 차량 연료 or 분류로 찾는 로직 -> 맞는지 의문
   async findBy(key: 'scale' | 'fuel', value: string) {
     const result = await this.repository.findBy({ [key]: value });
 

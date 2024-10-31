@@ -11,6 +11,7 @@ import { CarService } from './car.service';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
+import { FindCarDto } from './dto/find-car.dto';
 
 @ApiTags('Car')
 @Controller('car')
@@ -42,25 +43,26 @@ export class CarController {
     return await this.carService.findByCarId(id);
   }
 
-  // 차량 연료 or 분류로 찾기 API
-  // @Get('/find/:key')
-  // @ApiOperation({
-  //   summary: '연료 or 분류로 차량 검색',
-  // })
-  // @ApiParam({
-  //   name: 'key',
-  //   description: '차량의 연료 or 분류',
-  //   example: '하이브리드 | 중형',
-  // })
-  // async findBy(@Param('key') key: string) {
-  //   if (key === 'scale') {
-  //     // 연료로 차량을 검색할 때
-  //     return await this.carService.findBy('scale', key);
-  //   } else {
-  //     // 분류로 검색할 때
-  //     return await this.carService.findBy('fuel', key);
-  //   }
-  // }
+  // 차량 연료 or 분류로 찾기 API -> 이게 맞는지 잘 모르겠음
+  @Get('/find/:dto')
+  @ApiOperation({
+    summary: '연료 or 분류로 차량 검색',
+  })
+  @ApiParam({
+    name: 'dto',
+    type: FindCarDto,
+    description: '차량의 연료 or 분류',
+    example: '하이브리드 | 중형',
+  })
+  async findBy(@Param('dto') dto: FindCarDto, key: string) {
+    if (key === 'scale') {
+      // 연료로 차량을 검색할 때
+      return await this.carService.findBy('scale', dto.scale);
+    } else if (key === 'fuel') {
+      // 분류로 검색할 때
+      return await this.carService.findBy('fuel', dto.fuel);
+    }
+  }
 
   // 등록 API
   @Post('/create')

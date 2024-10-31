@@ -1,5 +1,7 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Scale } from '../entities/scale.enum';
+import { Fuel } from '../entities/fuel.enum';
 
 export class CreateCarDto {
   @IsString()
@@ -12,15 +14,12 @@ export class CreateCarDto {
   @ApiProperty({ description: '자동차 렌트 가격', example: 23000 })
   price: number;
 
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({ description: '자동차 분류', example: '중형' })
-  scale: string;
+  scale?: Scale;
 
-  @IsString()
-  @IsNotEmpty()
   @ApiProperty({ description: '자동차 연료', example: '하이브리드' })
-  fuel: string;
+  fuel?: Fuel;
 
+  @ApiProperty()
   carImg?: string;
 }
