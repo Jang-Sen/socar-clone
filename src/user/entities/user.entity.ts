@@ -1,6 +1,9 @@
 import { Base } from '../../common/base.entity';
-import { Column, Entity } from 'typeorm';
+import { BeforeInsert, Column, Entity } from 'typeorm';
 import { Provider } from './provider.enum';
+import { Exclude } from 'class-transformer';
+import * as bcrypt from 'bcryptjs';
+import * as gravatar from 'gravatar';
 
 @Entity()
 export class User extends Base {
@@ -8,6 +11,7 @@ export class User extends Base {
   public email: string;
 
   @Column({ nullable: true })
+  @Exclude()
   public password?: string;
 
   @Column()
@@ -28,4 +32,19 @@ export class User extends Base {
 
   @Column({ nullable: true })
   public profileImg?: string;
+
+  @BeforeInsert()
+  async beforeFunction() {
+    // 패스워드 암호화
+    const genValue = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, genValue);
+
+    // 프로필 사진 자동생성
+    this.profileImg = gravatar.url(this.email, {
+      s: '200',
+      r: 'pg',
+      d: 'mm',
+      protocol: 'https',
+    });
+  }
 }
