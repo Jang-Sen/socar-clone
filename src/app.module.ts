@@ -4,12 +4,11 @@ import { AppService } from './app.service';
 import { CarModule } from './car/car.module';
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './user/user.module';
 import * as Joi from 'joi';
 
 @Module({
   imports: [
-    CarModule,
-    DatabaseModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
@@ -19,6 +18,9 @@ import * as Joi from 'joi';
         POSTGRES_PASSWORD: Joi.string().required(),
       }),
     }),
+    DatabaseModule,
+    UserModule,
+    CarModule,
   ],
   controllers: [AppController],
   providers: [AppService],

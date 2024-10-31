@@ -11,6 +11,7 @@ async function bootstrap() {
     .setTitle('socar-clone API')
     .setDescription('쏘카 클론 API')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('socar')
     .build();
   const document = SwaggerModule.createDocument(app, config);
