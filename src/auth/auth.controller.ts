@@ -108,4 +108,12 @@ export class AuthController {
   async findUserInfo(@Req() req: RequestUserInterface) {
     return req.user;
   }
+
+  // 인증 번호 발송 API
+  @Post('/email/send')
+  @ApiOperation({ summary: '인증번호 발송' })
+  @ApiBody({ description: 'email' })
+  async sendOTP(@Body('email') email: string) {
+    return await this.authService.sendEmailOTP(email);
+  }
 }
