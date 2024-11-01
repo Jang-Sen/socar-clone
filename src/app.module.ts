@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
+import { MailModule } from './mail/mail.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -38,6 +39,7 @@ import * as Joi from 'joi';
     CarModule,
     AuthModule,
     RedisModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

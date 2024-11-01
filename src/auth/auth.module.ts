@@ -9,9 +9,10 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { KakaoStrategy } from './strategies/kakao.strategy';
 import { NaverStrategy } from './strategies/naver.strategy';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
-  imports: [ConfigModule, UserModule, JwtModule.register({})],
+  imports: [ConfigModule, UserModule, MailModule, JwtModule.register({})],
   controllers: [AuthController],
   providers: [
     AuthService,
