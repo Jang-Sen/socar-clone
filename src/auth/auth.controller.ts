@@ -1,11 +1,20 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LocalGuard } from './guards/local.guard';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import { RequestUserInterface } from './interface/requestUser.interface';
 import { JwtGuard } from './guards/jwt.guard';
+import { GoogleGuard } from './guards/google.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -32,9 +41,26 @@ export class AuthController {
     return { user, token };
   }
 
+  // 구글 로그인 API
+  @Get('/google')
+  @UseGuards(GoogleGuard)
+  @ApiOperation({ summary: '구글 로그인' })
+  async googleLogin() {
+    return HttpStatus.OK;
+  }
+
+  // 구글 로그인 콜백 API
+  @Get('/google/callback')
+  @UseGuards(GoogleGuard)
+  @ApiOperation({ summary: '구글 로그인 콜백' })
+  async googleCallback(@Req() req: RequestUserInterface) {
+    return req.user;
+  }
+
   // Access Token 으로 유저 정보 찾는 API
   @Get()
   @UseGuards(JwtGuard)
+  @ApiBearerAuth()
   @ApiOperation({ summary: '유저 정보 찾기' })
   async findUserInfo(@Req() req: RequestUserInterface) {
     return req.user;
