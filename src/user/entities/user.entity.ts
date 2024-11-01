@@ -28,23 +28,31 @@ export class User extends Base {
     enum: Provider,
     default: Provider.LOCAL,
   })
-  public provider?: Provider;
+  public provider: Provider;
 
   @Column({ nullable: true })
   public profileImg?: string;
 
   @BeforeInsert()
   async beforeFunction() {
-    // 패스워드 암호화
-    const genValue = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, genValue);
+    try {
+      if (this.provider !== Provider.LOCAL) {
+        return;
+      } else {
+        // 패스워드 암호화
+        const genValue = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, genValue);
 
-    // 프로필 사진 자동생성
-    this.profileImg = gravatar.url(this.email, {
-      s: '200',
-      r: 'pg',
-      d: 'mm',
-      protocol: 'https',
-    });
+        // 프로필 사진 자동생성
+        this.profileImg = gravatar.url(this.email, {
+          s: '200',
+          r: 'pg',
+          d: 'mm',
+          protocol: 'https',
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

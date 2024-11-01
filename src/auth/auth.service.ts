@@ -6,6 +6,7 @@ import * as bcrypt from 'bcryptjs';
 import { TokenPayloadInterface } from './interface/tokenPayload.interface';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Provider } from '../user/entities/provider.enum';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,10 @@ export class AuthService {
 
   // 회원가입 로직
   async signup(dto: CreateUserDto) {
-    return await this.userService.createUser(dto);
+    return await this.userService.createUser({
+      ...dto,
+      provider: Provider.LOCAL,
+    });
   }
 
   // 로그인 로직
