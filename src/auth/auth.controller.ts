@@ -16,6 +16,7 @@ import { RequestUserInterface } from './interface/requestUser.interface';
 import { JwtGuard } from './guards/jwt.guard';
 import { GoogleGuard } from './guards/google.guard';
 import { KakaoGuard } from './guards/kakao.guard';
+import { NaverGuard } from './guards/naver.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -78,6 +79,22 @@ export class AuthController {
     const token = await this.authService.getAccessToken(user.id);
 
     return { user, token };
+  }
+
+  // 네이버 로그인 API
+  @Get('/naver')
+  @UseGuards(NaverGuard)
+  @ApiOperation({ summary: '네이버 로그인' })
+  async naverLogin() {
+    return HttpStatus.OK;
+  }
+
+  // 네이버 로그인 콜백 API
+  @Get('/naver/callback')
+  @UseGuards(NaverGuard)
+  @ApiOperation({ summary: '네이버 로그인 콜백' })
+  async naverCallback(@Req() req: RequestUserInterface) {
+    return req.user;
   }
 
   // Access Token 으로 유저 정보 찾는 API
