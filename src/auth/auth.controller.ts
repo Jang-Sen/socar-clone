@@ -74,7 +74,10 @@ export class AuthController {
   @UseGuards(KakaoGuard)
   @ApiOperation({ summary: '카카오 로그인 콜백' })
   async kakaoCallback(@Req() req: RequestUserInterface) {
-    return req.user;
+    const user = req.user;
+    const token = await this.authService.getAccessToken(user.id);
+
+    return { user, token };
   }
 
   // Access Token 으로 유저 정보 찾는 API
