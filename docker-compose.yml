@@ -7,3 +7,11 @@ services:
       - .env
     ports:
       - 5431:5432
+
+  redis:
+    container_name: redis_js
+    image: redis:alpine
+    env_file:
+      - .env
+    ports:
+      - 6378:6379

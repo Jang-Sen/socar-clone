@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { RedisModule } from './redis/redis.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -17,6 +18,9 @@ import * as Joi from 'joi';
         POSTGRES_DB: Joi.string().required(),
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
+        REDIS_HOST: Joi.string().required(),
+        REDIS_PORT: Joi.number().required(),
+        REDIS_TTL: Joi.number().required(),
         ACCESS_TOKEN_SECRET: Joi.string().required(),
         ACCESS_TOKEN_TIME: Joi.string().required(),
         GOOGLE_CLIENT_ID: Joi.string().required(),
@@ -33,6 +37,7 @@ import * as Joi from 'joi';
     UserModule,
     CarModule,
     AuthModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
