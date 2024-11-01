@@ -17,6 +17,8 @@ import * as Joi from 'joi';
         POSTGRES_DB: Joi.string().required(),
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
+        ACCESS_TOKEN_SECRET: Joi.string().required(),
+        ACCESS_TOKEN_TIME: Joi.string().required(),
       }),
     }),
     DatabaseModule,

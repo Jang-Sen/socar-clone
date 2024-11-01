@@ -3,10 +3,17 @@ import { UserService } from '../user/user.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import * as bcrypt from 'bcryptjs';
+import { TokenPayloadInterface } from './interface/tokenPayload.interface';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   // 회원가입 로직
   async signup(dto: CreateUserDto) {
@@ -26,5 +33,15 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  // Access Token 발급 로직
+  async getAccessToken(userId: string) {
+    const payload: TokenPayloadInterface = { userId };
+
+    return this.jwtService.sign(payload, {
+      secret: this.configService.get('ACCESS_TOKEN_SECRET'),
+      expiresIn: this.configService.get('ACCESS_TOKEN_TIME'),
+    });
   }
 }

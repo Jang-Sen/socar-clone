@@ -25,6 +25,9 @@ export class AuthController {
   @ApiOperation({ summary: '로그인' })
   @ApiBody({ description: '로그인 DTO', type: LoginUserDto })
   async login(@Req() req: RequestUserInterface) {
-    return req.user;
+    const user = req.user;
+    const token = this.authService.getAccessToken(user.id);
+
+    return { user, token };
   }
 }
