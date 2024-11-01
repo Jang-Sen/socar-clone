@@ -94,7 +94,10 @@ export class AuthController {
   @UseGuards(NaverGuard)
   @ApiOperation({ summary: '네이버 로그인 콜백' })
   async naverCallback(@Req() req: RequestUserInterface) {
-    return req.user;
+    const user = req.user;
+    const token = await this.authService.getAccessToken(user.id);
+
+    return { user, token };
   }
 
   // Access Token 으로 유저 정보 찾는 API
