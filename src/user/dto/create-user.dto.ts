@@ -1,6 +1,8 @@
 import {
   IsEmail,
+  IsEnum,
   IsNumber,
+  IsOptional,
   IsString,
   Matches,
   MinLength,
@@ -25,16 +27,18 @@ export class CreateUserDto {
   username: string;
 
   @IsNumber()
-  @ApiProperty({ description: '핸드폰 번호', example: '01095110662' })
+  @ApiProperty({ description: '핸드폰 번호', example: 1095110662 })
   phone?: number;
 
   @IsString()
   @ApiProperty({ description: '주소', example: '서울시 노원구' })
   address?: string;
 
-  @IsString()
+  @IsEnum(Provider)
+  @ApiProperty({ description: '제공', example: Provider.LOCAL })
   provider?: Provider;
 
   @IsString()
+  @IsOptional()
   profileImg?: string;
 }

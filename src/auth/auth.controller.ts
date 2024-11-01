@@ -15,6 +15,7 @@ import { LoginUserDto } from '../user/dto/login-user.dto';
 import { RequestUserInterface } from './interface/requestUser.interface';
 import { JwtGuard } from './guards/jwt.guard';
 import { GoogleGuard } from './guards/google.guard';
+import { KakaoGuard } from './guards/kakao.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -36,7 +37,7 @@ export class AuthController {
   @ApiBody({ description: '로그인 DTO', type: LoginUserDto })
   async login(@Req() req: RequestUserInterface) {
     const user = req.user;
-    const token = this.authService.getAccessToken(user.id);
+    const token = await this.authService.getAccessToken(user.id);
 
     return { user, token };
   }
@@ -54,6 +55,25 @@ export class AuthController {
   @UseGuards(GoogleGuard)
   @ApiOperation({ summary: '구글 로그인 콜백' })
   async googleCallback(@Req() req: RequestUserInterface) {
+    const user = req.user;
+    const token = await this.authService.getAccessToken(user.id);
+
+    return { user, token };
+  }
+
+  // 카카오 로그인 API
+  @Get('kakao')
+  @UseGuards(KakaoGuard)
+  @ApiOperation({ summary: '카카오 로그인' })
+  async kakaologin() {
+    return HttpStatus.OK;
+  }
+
+  // 카카오 로그인 콜백 API
+  @Get('kakao/callback')
+  @UseGuards(KakaoGuard)
+  @ApiOperation({ summary: '카카오 로그인 콜백' })
+  async kakaoCallback(@Req() req: RequestUserInterface) {
     return req.user;
   }
 
