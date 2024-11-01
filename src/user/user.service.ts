@@ -23,7 +23,7 @@ export class UserService {
   async findBy(key: 'id' | 'email', value: string) {
     const user = await this.repository.findOneBy({ [key]: value });
     if (!user) {
-      throw new NotFoundException(`${key} 에 맞는 유저가 없습니다.`);
+      throw new NotFoundException(`존재하지 않는 ${key} 입니다.`);
     }
 
     return user;

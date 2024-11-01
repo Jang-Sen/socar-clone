@@ -26,10 +26,8 @@ export class CreateUserDto {
   address?: string;
 
   @IsString()
-  @ApiProperty({ description: '회원가입 경로' })
   provider?: Provider;
 
   @IsString()
-  @ApiProperty({ description: '프로필 사진' })
   profileImg?: string;
 }
