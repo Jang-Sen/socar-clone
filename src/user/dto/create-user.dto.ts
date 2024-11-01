@@ -9,6 +9,8 @@ import {
 } from 'class-validator';
 import { Provider } from '../entities/provider.enum';
 import { ApiProperty } from '@nestjs/swagger';
+import { Term } from '../../term/entities/term.entity';
+import { CreateTermDto } from '../../term/dto/create-term.dto';
 
 export class CreateUserDto {
   @IsEmail()
@@ -41,4 +43,7 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   profileImg?: string;
+
+  @ApiProperty({ description: '이용약관', example: CreateTermDto })
+  term?: Term;
 }

@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { MailModule } from './mail/mail.module';
+import { TermModule } from './term/term.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -40,6 +41,7 @@ import * as Joi from 'joi';
     AuthModule,
     RedisModule,
     MailModule,
+    TermModule,
   ],
   controllers: [AppController],
   providers: [AppService],

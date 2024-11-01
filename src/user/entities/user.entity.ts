@@ -1,9 +1,10 @@
 import { Base } from '../../common/base.entity';
-import { BeforeInsert, Column, Entity } from 'typeorm';
+import { BeforeInsert, Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Provider } from './provider.enum';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcryptjs';
 import * as gravatar from 'gravatar';
+import { Term } from '../../term/entities/term.entity';
 
 @Entity()
 export class User extends Base {
@@ -32,6 +33,14 @@ export class User extends Base {
 
   @Column({ nullable: true })
   public profileImg?: string;
+
+  @OneToOne(() => Term, (term) => term.user, {
+    cascade: true,
+    eager: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  public term: Term;
 
   @BeforeInsert()
   async beforeFunction() {
