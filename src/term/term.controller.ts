@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { TermService } from './term.service';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { JwtGuard } from '../auth/guards/jwt.guard';
+import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { CreateTermDto } from './dto/create-term.dto';
 import { RequestUserInterface } from '../auth/interface/requestUser.interface';
 import { UpdateTermDto } from './dto/update-term.dto';
@@ -14,7 +14,7 @@ export class TermController {
 
   // 이용약관 생성 API
   @Post()
-  @UseGuards(JwtGuard)
+  @UseGuards(AccessTokenGuard)
   @ApiOperation({ summary: '이용약관 생성' })
   @ApiBody({ description: '이용약관 DTO', type: CreateTermDto })
   async createTerm(
@@ -26,7 +26,7 @@ export class TermController {
 
   // 이용약관 수정 API
   @Put()
-  @UseGuards(JwtGuard)
+  @UseGuards(AccessTokenGuard)
   @ApiOperation({ summary: '이용약관 수정' })
   @ApiBody({ description: '이용약관 DTO', type: CreateTermDto })
   async updateTerm(

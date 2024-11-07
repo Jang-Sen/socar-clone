@@ -13,13 +13,14 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LocalGuard } from './guards/local.guard';
 import { LoginUserDto } from '../user/dto/login-user.dto';
 import { RequestUserInterface } from './interface/requestUser.interface';
-import { JwtGuard } from './guards/jwt.guard';
+import { AccessTokenGuard } from './guards/access-token.guard';
 import { GoogleGuard } from './guards/google.guard';
 import { KakaoGuard } from './guards/kakao.guard';
 import { NaverGuard } from './guards/naver.guard';
 import { EmailDto } from '../user/dto/email.dto';
 import { UserService } from '../user/user.service';
 import { UpdatePasswordDto } from '../user/dto/update-password.dto';
+import { RefreshTokenGuard } from './guards/refresh-token.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -69,6 +70,19 @@ export class AuthController {
       dto.token,
       dto.password,
     );
+  }
+
+  // Refresh Token을 이용해 Access Token 갱신
+  @Get('/refresh')
+  @UseGuards(RefreshTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Redis에 담긴 Refresh Token을 이용해 Access Token 갱신',
+  })
+  async refresh(@Req() req: RequestUserInterface) {
+    const user = req.user;
+
+    return await this.authService.getRefreshToken(user.id);
   }
 
   // 구글 로그인 API
@@ -130,7 +144,7 @@ export class AuthController {
 
   // Access Token 으로 유저 정보 찾는 API
   @Get()
-  @UseGuards(JwtGuard)
+  @UseGuards(AccessTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: '유저 정보 찾기' })
   async findUserInfo(@Req() req: RequestUserInterface) {

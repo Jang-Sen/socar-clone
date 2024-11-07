@@ -5,11 +5,12 @@ import { UserModule } from '../user/user.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { AccessTokenStrategy } from './strategies/access-token.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
 import { KakaoStrategy } from './strategies/kakao.strategy';
 import { NaverStrategy } from './strategies/naver.strategy';
 import { MailModule } from '../mail/mail.module';
+import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 
 @Module({
   imports: [ConfigModule, UserModule, MailModule, JwtModule.register({})],
@@ -17,7 +18,8 @@ import { MailModule } from '../mail/mail.module';
   providers: [
     AuthService,
     LocalStrategy,
-    JwtStrategy,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
     GoogleStrategy,
     KakaoStrategy,
     NaverStrategy,

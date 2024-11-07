@@ -25,7 +25,7 @@ export class UserService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER)
-    private readonly cache: Cache,
+    private cache: Cache,
   ) {}
 
   // 유저 생성 로직
@@ -87,5 +87,20 @@ export class UserService {
 
     // Redis에 암호화한 토큰 저장
     await this.cache.set(userId, hashRefreshToken);
+  }
+
+  // Redis에 담긴 Refresh Token과 userId에 대한 Refresh Token이 일치하는지 검증
+  async matchRefreshToken(userId: string, refreshToken: string) {
+    // id 체크
+    const user = await this.findBy('id', userId);
+    // Redis에 담긴 id
+    const redisUserId: string = await this.cache.get(user.id);
+
+    // 비교
+    const result = bcrypt.compare(refreshToken, redisUserId);
+
+    if (result) {
+      return user;
+    }
   }
 }
