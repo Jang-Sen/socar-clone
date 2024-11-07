@@ -17,6 +17,7 @@ import { JwtGuard } from './guards/jwt.guard';
 import { GoogleGuard } from './guards/google.guard';
 import { KakaoGuard } from './guards/kakao.guard';
 import { NaverGuard } from './guards/naver.guard';
+import { EmailDto } from '../user/dto/email.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -41,6 +42,14 @@ export class AuthController {
     const token = await this.authService.getAccessToken(user.id);
 
     return { user, token };
+  }
+
+  // 비밀번호 변경 이메일 보내기 API
+  @Post('/find/password')
+  @ApiOperation({ summary: '비밀번호 변경 이메일 보내기' })
+  @ApiBody({ description: '이메일 DTO', type: EmailDto })
+  async findPassword(@Body() dto: EmailDto) {
+    return await this.authService.findPasswordSendEmail(dto.email);
   }
 
   // 구글 로그인 API

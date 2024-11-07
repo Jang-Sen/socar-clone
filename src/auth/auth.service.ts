@@ -55,6 +55,38 @@ export class AuthService {
     });
   }
 
+  // 비밀번호 찾기 위해 이메일 전송(비밀번호 토큰 전송) 로직
+  async findPasswordSendEmail(email: string) {
+    // 유저가 존재하는지 확인
+    const user = await this.userService.findBy('email', email);
+
+    // 소셜 로그인 사용자 이용불가
+    if (user.provider !== Provider.LOCAL) {
+      throw new HttpException(
+        '소셜 로그인 유저는 이용하실 수 없습니다.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // 비밀번호 변경 토큰 전송
+    const payload = { email };
+
+    const token = this.jwtService.sign(payload, {
+      secret: this.configService.get('FIND_PASSWORD_TOKEN_SECRET'),
+      expiresIn: this.configService.get('FIND_PASSWORD_TOKEN_TIME'),
+    });
+
+    // 이메일에 전송할 url 생성
+    const url = `${this.configService.get('EMAIL_BASE_URL')}/change/password?token=${token}`;
+
+    // 이메일 전송
+    await this.mailService.sendMail({
+      to: email,
+      subject: 'socar-clone 비밀번호 변경에 관한 메일입니다.',
+      text: `비밀번호 변경 url: ${url}`,
+    });
+  }
+
   // 이메일 인증번호 로직
   async sendEmailOTP(email: string) {
     const otpNum = this.generateOTP();
