@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -21,6 +22,7 @@ import { EmailDto } from '../user/dto/email.dto';
 import { UserService } from '../user/user.service';
 import { UpdatePasswordDto } from '../user/dto/update-password.dto';
 import { RefreshTokenGuard } from './guards/refresh-token.guard';
+import { Response } from 'express';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -43,14 +45,21 @@ export class AuthController {
   @UseGuards(LocalGuard)
   @ApiOperation({ summary: '로그인' })
   @ApiBody({ description: '로그인 DTO', type: LoginUserDto })
-  async login(@Req() req: RequestUserInterface) {
+  async login(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
-    const accessToken = await this.authService.getAccessToken(user.id);
-    const refreshToken = await this.authService.getRefreshToken(user.id);
+    const { token: accessToken, cookie: accessTokenCookie } =
+      this.authService.getAccessToken(user.id);
+    const { token: refreshToken, cookie: refreshTokenCookie } =
+      this.authService.getRefreshToken(user.id);
 
+    // Refresh Token -> Redis 에 담기
     await this.userService.saveRefreshTokenInRedis(user.id, refreshToken);
 
-    return { user, accessToken, refreshToken };
+    // Token -> Cookie 에 담기
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+
+    res.send(user);
+    // return { user, accessToken, refreshToken };
   }
 
   // 비밀번호 변경 이메일 보내기 API
@@ -82,7 +91,20 @@ export class AuthController {
   async refresh(@Req() req: RequestUserInterface) {
     const user = req.user;
 
-    return await this.authService.getRefreshToken(user.id);
+    const { token, cookie } = this.authService.getAccessToken(user.id);
+
+    req.res.setHeader('Set-Cookie', [cookie]);
+
+    return user;
+  }
+
+  // Access Token 으로 유저 정보 찾는 API
+  @Get()
+  @UseGuards(AccessTokenGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '유저 정보 찾기' })
+  async findUserInfo(@Req() req: RequestUserInterface) {
+    return req.user;
   }
 
   // 구글 로그인 API
@@ -99,7 +121,7 @@ export class AuthController {
   @ApiOperation({ summary: '구글 로그인 콜백' })
   async googleCallback(@Req() req: RequestUserInterface) {
     const user = req.user;
-    const token = await this.authService.getAccessToken(user.id);
+    const token = this.authService.getAccessToken(user.id);
 
     return { user, token };
   }
@@ -118,7 +140,7 @@ export class AuthController {
   @ApiOperation({ summary: '카카오 로그인 콜백' })
   async kakaoCallback(@Req() req: RequestUserInterface) {
     const user = req.user;
-    const token = await this.authService.getAccessToken(user.id);
+    const token = this.authService.getAccessToken(user.id);
 
     return { user, token };
   }
@@ -137,18 +159,9 @@ export class AuthController {
   @ApiOperation({ summary: '네이버 로그인 콜백' })
   async naverCallback(@Req() req: RequestUserInterface) {
     const user = req.user;
-    const token = await this.authService.getAccessToken(user.id);
+    const token = this.authService.getAccessToken(user.id);
 
     return { user, token };
-  }
-
-  // Access Token 으로 유저 정보 찾는 API
-  @Get()
-  @UseGuards(AccessTokenGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: '유저 정보 찾기' })
-  async findUserInfo(@Req() req: RequestUserInterface) {
-    return req.user;
   }
 
   // 인증 번호 발송 API

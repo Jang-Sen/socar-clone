@@ -46,23 +46,37 @@ export class AuthService {
   }
 
   // Access Token 발급 로직
-  async getAccessToken(userId: string) {
+  public getAccessToken(userId: string): {
+    token: string;
+    cookie: string;
+  } {
     const payload: TokenPayloadInterface = { userId };
 
-    return this.jwtService.sign(payload, {
+    const token = this.jwtService.sign(payload, {
       secret: this.configService.get('ACCESS_TOKEN_SECRET'),
       expiresIn: this.configService.get('ACCESS_TOKEN_TIME'),
     });
+
+    const cookie = `Authentication=${token}; PATH=/; Max-Age=${this.configService.get('ACCESS_TOKEN_TIME')}`;
+
+    return { token, cookie };
   }
 
   // Refresh Token 발급 로직
-  async getRefreshToken(userId: string) {
+  public getRefreshToken(userId: string): {
+    token: string;
+    cookie: string;
+  } {
     const payload: TokenPayloadInterface = { userId };
 
-    return this.jwtService.sign(payload, {
+    const token = this.jwtService.sign(payload, {
       secret: this.configService.get('REFRESH_TOKEN_SECRET'),
       expiresIn: this.configService.get('REFRESH_TOKEN_TIME'),
     });
+
+    const cookie = `Refresh=${token}; PATH=/; Max-Age=${this.configService.get('REFRESH_TOKEN_TIME')}`;
+
+    return { token, cookie };
   }
 
   // 비밀번호 찾기 위해 이메일 전송(비밀번호 토큰 전송) 로직

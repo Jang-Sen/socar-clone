@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { UserService } from '../../user/user.service';
 import { RequestUserInterface } from '../interface/requestUser.interface';
 import { TokenPayloadInterface } from '../interface/tokenPayload.interface';
+import { Request } from 'express';
 
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
@@ -16,7 +17,12 @@ export class RefreshTokenStrategy extends PassportStrategy(
     private readonly userService: UserService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req: Request) => {
+          return req?.cookies?.Refresh;
+        },
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ]),
       secretOrKey: configService.get('REFRESH_TOKEN_SECRET'),
       passReqToCallback: true,
     });
@@ -26,9 +32,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
     @Req() req: RequestUserInterface,
     payload: TokenPayloadInterface,
   ) {
-    const refreshToken = req.headers.authorization
-      ?.replace('bearer', '')
-      .trim();
+    const refreshToken = req?.cookies?.Refresh;
 
     const user = await this.userService.matchRefreshToken(
       payload.userId,
