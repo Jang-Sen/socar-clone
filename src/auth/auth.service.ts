@@ -77,7 +77,7 @@ export class AuthService {
     });
 
     // 이메일에 전송할 url 생성
-    const url = `${this.configService.get('EMAIL_BASE_URL')}/change/password?token=${token}`;
+    const url = `${this.configService.get('EMAIL_BASE_URL')}/api/update/password?token=${token}`;
 
     // 이메일 전송
     await this.mailService.sendMail({

@@ -11,6 +11,7 @@ services:
   redis:
     container_name: redis_js
     image: redis:alpine
+    restart: always
     env_file:
       - .env
     ports:
