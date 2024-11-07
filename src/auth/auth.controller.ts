@@ -44,9 +44,12 @@ export class AuthController {
   @ApiBody({ description: '로그인 DTO', type: LoginUserDto })
   async login(@Req() req: RequestUserInterface) {
     const user = req.user;
-    const token = await this.authService.getAccessToken(user.id);
+    const accessToken = await this.authService.getAccessToken(user.id);
+    const refreshToken = await this.authService.getRefreshToken(user.id);
 
-    return { user, token };
+    await this.userService.saveRefreshTokenInRedis(user.id, refreshToken);
+
+    return { user, accessToken, refreshToken };
   }
 
   // 비밀번호 변경 이메일 보내기 API

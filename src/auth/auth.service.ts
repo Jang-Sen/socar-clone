@@ -55,6 +55,16 @@ export class AuthService {
     });
   }
 
+  // Refresh Token 발급 로직
+  async getRefreshToken(userId: string) {
+    const payload: TokenPayloadInterface = { userId };
+
+    return this.jwtService.sign(payload, {
+      secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+      expiresIn: this.configService.get('REFRESH_TOKEN_TIME'),
+    });
+  }
+
   // 비밀번호 찾기 위해 이메일 전송(비밀번호 토큰 전송) 로직
   async findPasswordSendEmail(email: string) {
     // 유저가 존재하는지 확인

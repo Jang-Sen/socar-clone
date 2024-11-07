@@ -25,6 +25,8 @@ import * as Joi from 'joi';
         REDIS_TTL: Joi.number().required(),
         ACCESS_TOKEN_SECRET: Joi.string().required(),
         ACCESS_TOKEN_TIME: Joi.string().required(),
+        REFRESH_TOKEN_SECRET: Joi.string().required(),
+        REFRESH_TOKEN_TIME: Joi.string().required(),
         FIND_PASSWORD_TOKEN_SECRET: Joi.string().required(),
         FIND_PASSWORD_TOKEN_TIME: Joi.string().required(),
         EMAIL_BASE_URL: Joi.string().required(),
