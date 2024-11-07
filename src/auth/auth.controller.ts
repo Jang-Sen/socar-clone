@@ -48,9 +48,9 @@ export class AuthController {
   async login(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
     const { token: accessToken, cookie: accessTokenCookie } =
-      this.authService.getAccessToken(user.id);
+      this.authService.getToken('access', user.id);
     const { token: refreshToken, cookie: refreshTokenCookie } =
-      this.authService.getRefreshToken(user.id);
+      this.authService.getToken('refresh', user.id);
 
     // Refresh Token -> Redis 에 담기
     await this.userService.saveRefreshTokenInRedis(user.id, refreshToken);
@@ -91,7 +91,7 @@ export class AuthController {
   async refresh(@Req() req: RequestUserInterface) {
     const user = req.user;
 
-    const { token, cookie } = this.authService.getAccessToken(user.id);
+    const { token, cookie } = this.authService.getToken('access', user.id);
 
     req.res.setHeader('Set-Cookie', [cookie]);
 
@@ -121,7 +121,7 @@ export class AuthController {
   @ApiOperation({ summary: '구글 로그인 콜백' })
   async googleCallback(@Req() req: RequestUserInterface) {
     const user = req.user;
-    const token = this.authService.getAccessToken(user.id);
+    const token = this.authService.getToken('access', user.id);
 
     return { user, token };
   }
@@ -140,7 +140,7 @@ export class AuthController {
   @ApiOperation({ summary: '카카오 로그인 콜백' })
   async kakaoCallback(@Req() req: RequestUserInterface) {
     const user = req.user;
-    const token = this.authService.getAccessToken(user.id);
+    const token = this.authService.getToken('access', user.id);
 
     return { user, token };
   }
@@ -159,7 +159,7 @@ export class AuthController {
   @ApiOperation({ summary: '네이버 로그인 콜백' })
   async naverCallback(@Req() req: RequestUserInterface) {
     const user = req.user;
-    const token = this.authService.getAccessToken(user.id);
+    const token = this.authService.getToken('access', user.id);
 
     return { user, token };
   }

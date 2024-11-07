@@ -45,39 +45,69 @@ export class AuthService {
     return user;
   }
 
+  // Token 발행 로직
+  public getToken(
+    tokenType: 'access' | 'refresh',
+    userId: string,
+  ): {
+    token: string;
+    cookie: string;
+  } {
+    const payload: TokenPayloadInterface = { userId };
+
+    const secret =
+      tokenType === 'access'
+        ? this.configService.get('ACCESS_TOKEN_SECRET')
+        : this.configService.get('REFRESH_TOKEN_SECRET');
+    const expiresIn =
+      tokenType === 'access'
+        ? this.configService.get('ACCESS_TOKEN_TIME')
+        : this.configService.get('REFRESH_TOKEN_TIME');
+
+    const token = this.jwtService.sign(payload, {
+      secret,
+      expiresIn,
+    });
+
+    const cookieName = tokenType === 'access' ? 'Authentication' : 'Refresh';
+    const cookie = `${tokenType}=${cookieName}; PATH=/; Max-Age=${expiresIn}`;
+
+    return { token, cookie };
+  }
+
   // Access Token 발급 로직
-  public getAccessToken(userId: string): {
-    token: string;
-    cookie: string;
-  } {
-    const payload: TokenPayloadInterface = { userId };
-
-    const token = this.jwtService.sign(payload, {
-      secret: this.configService.get('ACCESS_TOKEN_SECRET'),
-      expiresIn: this.configService.get('ACCESS_TOKEN_TIME'),
-    });
-
-    const cookie = `Authentication=${token}; PATH=/; Max-Age=${this.configService.get('ACCESS_TOKEN_TIME')}`;
-
-    return { token, cookie };
-  }
-
-  // Refresh Token 발급 로직
-  public getRefreshToken(userId: string): {
-    token: string;
-    cookie: string;
-  } {
-    const payload: TokenPayloadInterface = { userId };
-
-    const token = this.jwtService.sign(payload, {
-      secret: this.configService.get('REFRESH_TOKEN_SECRET'),
-      expiresIn: this.configService.get('REFRESH_TOKEN_TIME'),
-    });
-
-    const cookie = `Refresh=${token}; PATH=/; Max-Age=${this.configService.get('REFRESH_TOKEN_TIME')}`;
-
-    return { token, cookie };
-  }
+  // public getAccessToken(userId: string): {
+  //   token: string;
+  //   cookie: string;
+  // } {
+  //   const payload: TokenPayloadInterface = { userId };
+  //
+  //   const token = this.jwtService.sign(payload, {
+  //     secret: this.configService.get('ACCESS_TOKEN_SECRET'),
+  //     expiresIn: this.configService.get('ACCESS_TOKEN_TIME'),
+  //   });
+  //
+  //   const cookie = `Authentication=${token}; PATH=/; Max-Age=${this.configService.get('ACCESS_TOKEN_TIME')}`;
+  //
+  //   return { token, cookie };
+  // }
+  //
+  // // Refresh Token 발급 로직
+  // public getRefreshToken(userId: string): {
+  //   token: string;
+  //   cookie: string;
+  // } {
+  //   const payload: TokenPayloadInterface = { userId };
+  //
+  //   const token = this.jwtService.sign(payload, {
+  //     secret: this.configService.get('REFRESH_TOKEN_SECRET'),
+  //     expiresIn: this.configService.get('REFRESH_TOKEN_TIME'),
+  //   });
+  //
+  //   const cookie = `Refresh=${token}; PATH=/; Max-Age=${this.configService.get('REFRESH_TOKEN_TIME')}`;
+  //
+  //   return { token, cookie };
+  // }
 
   // 비밀번호 찾기 위해 이메일 전송(비밀번호 토큰 전송) 로직
   async findPasswordSendEmail(email: string) {
