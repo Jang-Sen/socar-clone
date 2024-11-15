@@ -6,12 +6,15 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { CarService } from './car.service';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
 import { FindCarDto } from './dto/find-car.dto';
+import { RoleGuard } from '../auth/guards/role.guard';
+import { Role } from '../user/entities/role.enum';
 
 @ApiTags('Car')
 @Controller('car')
@@ -66,6 +69,7 @@ export class CarController {
 
   // 등록 API
   @Post('/create')
+  @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '차량 등록',
   })
@@ -79,6 +83,7 @@ export class CarController {
 
   // 수정 API
   @Put('/:id')
+  @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '차량 수정',
     description: 'ID로 등록되어있는 차량의 정보 수정',
@@ -98,6 +103,7 @@ export class CarController {
 
   // 삭제 API
   @Delete('/:id')
+  @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '차량 삭제',
     description: 'ID로 등록되어있는 차량을 삭제',
