@@ -1,4 +1,17 @@
 services:
+  nginx:
+    container_name: nginx_js
+    image: nginx:stable-alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/templates:/etc/nginx/templates
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - network_js
+
   backend:
     container_name: backend_js
     build:
