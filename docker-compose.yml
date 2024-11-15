@@ -1,12 +1,33 @@
 services:
+  backend:
+    container_name: backend_js
+    build:
+      dockerfile: Dockerfile
+      context: .
+      target: development
+    volumes:
+      - .:/usr/src/app
+    command: npm run start:dev
+    env_file:
+      - .env
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - network_js
+
   postgres:
-    container_name: js_postgres
+    container_name: postgres_js
     image: postgres:latest
     restart: always
     env_file:
       - .env
     ports:
-      - 5431:5432
+      - "${POSTGRES_EXTERNAL_PORT}:${POSTGRES_PORT}"
+    networks:
+      - network_js
 
   redis:
     container_name: redis_js
@@ -15,4 +36,10 @@ services:
     env_file:
       - .env
     ports:
-      - 6378:6379
+      - "${REDIS_EXTERNAL_PORT}:${REDIS_PORT}"
+    networks:
+      - network_js
+
+networks:
+  network_js:
+    driver: bridge
