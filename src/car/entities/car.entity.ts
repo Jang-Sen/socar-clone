@@ -1,4 +1,4 @@
-import { Base } from '../../common/base.entity';
+import { Base } from '../../common/entities/base.entity';
 import { Column, Entity } from 'typeorm';
 import { Fuel } from './fuel.enum';
 import { Scale } from './scale.enum';

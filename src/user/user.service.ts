@@ -36,6 +36,11 @@ export class UserService {
     return user;
   }
 
+  // 전체 유저 찾기 로직
+  async findAll() {
+    return await this.repository.find();
+  }
+
   // ID or Email로 유저 찾기 로직
   async findBy(key: 'id' | 'email', value: string) {
     const user = await this.repository.findOneBy({ [key]: value });
