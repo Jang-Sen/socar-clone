@@ -55,14 +55,13 @@ export class AuthService {
   } {
     const payload: TokenPayloadInterface = { userId };
 
-    const secret =
-      tokenType === 'access'
-        ? this.configService.get('ACCESS_TOKEN_SECRET')
-        : this.configService.get('REFRESH_TOKEN_SECRET');
-    const expiresIn =
-      tokenType === 'access'
-        ? this.configService.get('ACCESS_TOKEN_TIME')
-        : this.configService.get('REFRESH_TOKEN_TIME');
+    const secret = this.configService.get(
+      tokenType === 'access' ? 'ACCESS_TOKEN_SECRET' : 'REFRESH_TOKEN_SECRET',
+    );
+
+    const expiresIn = this.configService.get(
+      tokenType === 'access' ? 'ACCESS_TOKEN_TIME' : 'REFRESH_TOKEN_TIME',
+    );
 
     const token = this.jwtService.sign(payload, {
       secret,
@@ -70,7 +69,9 @@ export class AuthService {
     });
 
     const cookieName = tokenType === 'access' ? 'Authentication' : 'Refresh';
-    const cookie = `${tokenType}=${cookieName}; PATH=/; Max-Age=${expiresIn}`;
+    const cookie = `${cookieName}=${token}; PATH=/; Max-Age=${expiresIn}`;
+
+    console.log(cookie);
 
     return { token, cookie };
   }

@@ -5,8 +5,8 @@ import { RoleGuard } from '../auth/guards/role.guard';
 import { Role } from './entities/role.enum';
 
 @ApiTags('User')
-@UseGuards(RoleGuard(Role.ADMIN))
 @Controller('user')
+@UseGuards(RoleGuard(Role.ADMIN))
 export class UserController {
   constructor(private readonly userService: UserService) {}
 

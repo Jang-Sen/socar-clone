@@ -103,7 +103,6 @@ export class AuthController {
   // Access Token 으로 유저 정보 찾는 API
   @Get()
   @UseGuards(AccessTokenGuard)
-  @ApiBearerAuth()
   @ApiOperation({ summary: '유저 정보 찾기' })
   async findUserInfo(@Req() req: RequestUserInterface) {
     return req.user;

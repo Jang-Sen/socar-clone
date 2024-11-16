@@ -1,13 +1,13 @@
 import { Body, Controller, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { TermService } from './term.service';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiCookieAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AccessTokenGuard } from '../auth/guards/access-token.guard';
 import { CreateTermDto } from './dto/create-term.dto';
 import { RequestUserInterface } from '../auth/interface/requestUser.interface';
 import { UpdateTermDto } from './dto/update-term.dto';
 
 @ApiTags('Term')
-@ApiBearerAuth()
+@ApiCookieAuth()
 @Controller('term')
 export class TermController {
   constructor(private readonly termService: TermService) {}
