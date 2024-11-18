@@ -44,6 +44,6 @@ export class CreateUserDto {
   @IsOptional()
   profileImg?: string;
 
-  @ApiProperty({ description: '이용약관', example: CreateTermDto })
+  @ApiProperty({ description: '이용약관', type: CreateTermDto })
   term?: Term;
 }

@@ -28,6 +28,6 @@ export class TermService {
       throw new BadRequestException('error');
     }
 
-    return result;
+    return 'update';
   }
 }

@@ -90,14 +90,14 @@ export class AuthController {
   @ApiOperation({
     summary: 'Redis에 담긴 Refresh Token을 이용해 Access Token 갱신',
   })
-  async refresh(@Req() req: RequestUserInterface) {
+  async refresh(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
 
     const { cookie } = this.authService.getToken('access', user.id);
 
-    req.res.setHeader('Set-Cookie', [cookie]);
+    res.setHeader('Set-Cookie', [cookie]);
 
-    return { user };
+    res.send({ user });
   }
 
   // Access Token 으로 유저 정보 찾는 API
@@ -120,7 +120,7 @@ export class AuthController {
   @Get('/google/callback')
   @UseGuards(GoogleGuard)
   @ApiOperation({ summary: '구글 로그인 콜백' })
-  async googleCallback(@Req() req: RequestUserInterface) {
+  async googleCallback(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
     const { cookie: accessTokenCookie } = this.authService.getToken(
       'access',
@@ -131,9 +131,9 @@ export class AuthController {
 
     await this.userService.saveRefreshTokenInRedis(user.id, refreshToken);
 
-    req.res.setHeader('Set-Cookie', [refreshTokenCookie]);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    return req.res.send({ user });
+    res.send({ user });
   }
 
   // 카카오 로그인 API
@@ -148,7 +148,7 @@ export class AuthController {
   @Get('kakao/callback')
   @UseGuards(KakaoGuard)
   @ApiOperation({ summary: '카카오 로그인 콜백' })
-  async kakaoCallback(@Req() req: RequestUserInterface) {
+  async kakaoCallback(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
     const { cookie: accessTokenCookie } = this.authService.getToken(
       'access',
@@ -159,9 +159,9 @@ export class AuthController {
 
     await this.userService.saveRefreshTokenInRedis(user.id, refreshToken);
 
-    req.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    return req.res.send({ user });
+    req.res.send({ user });
   }
 
   // 네이버 로그인 API
@@ -176,7 +176,7 @@ export class AuthController {
   @Get('/naver/callback')
   @UseGuards(NaverGuard)
   @ApiOperation({ summary: '네이버 로그인 콜백' })
-  async naverCallback(@Req() req: RequestUserInterface) {
+  async naverCallback(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
     const { cookie: accessTokenCookie } = this.authService.getToken(
       'access',
@@ -187,9 +187,9 @@ export class AuthController {
 
     await this.userService.saveRefreshTokenInRedis(user.id, refreshToken);
 
-    req.res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+    res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    return req.res.send({ user });
+    req.res.send({ user });
   }
 
   // 인증 번호 발송 API
