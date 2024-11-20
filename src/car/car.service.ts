@@ -4,6 +4,9 @@ import { Car } from './entities/car.entity';
 import { Repository } from 'typeorm';
 import { CreateCarDto } from './dto/create-car.dto';
 import { UpdateCarDto } from './dto/update-car.dto';
+import { PageDto } from '../common/dto/page.dto';
+import { PageOptionsDto } from '../common/dto/page-options.dto';
+import { PageMetaDto } from '../common/dto/page-meta.dto';
 
 @Injectable()
 export class CarService {
@@ -13,8 +16,21 @@ export class CarService {
   ) {}
 
   // 전체 찾기 로직
-  async findAll() {
-    return await this.repository.find();
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Car>> {
+    // return await this.repository.find();
+    const queryBuilder = this.repository.createQueryBuilder('car');
+
+    queryBuilder
+      .orderBy('car.createdAt', 'ASC')
+      .take(pageOptionsDto.take)
+      .skip(pageOptionsDto.skip);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+
+    return new PageDto(entities, pageMetaDto);
   }
 
   // ID에 맞는 차량 찾기 로직

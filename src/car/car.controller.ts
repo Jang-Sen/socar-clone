@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CarService } from './car.service';
@@ -15,6 +16,7 @@ import { UpdateCarDto } from './dto/update-car.dto';
 import { FindCarDto } from './dto/find-car.dto';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { Role } from '../user/entities/role.enum';
+import { PageOptionsDto } from '../common/dto/page-options.dto';
 
 @ApiTags('Car')
 @Controller('car')
@@ -25,10 +27,10 @@ export class CarController {
   @Get('/findAll')
   @ApiOperation({
     summary: '차량 전체 찾기',
-    description: '등록되어있는 차량 전체 검색',
+    description: '등록되어있는 차량 전체 검색(페이징)',
   })
-  async findAll() {
-    return await this.carService.findAll();
+  async findAll(@Query() pageOptionsDto: PageOptionsDto) {
+    return await this.carService.findAll(pageOptionsDto);
   }
 
   // 차량 ID로 찾기 API
