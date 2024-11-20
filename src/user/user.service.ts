@@ -16,6 +16,9 @@ import { Provider } from './entities/provider.enum';
 import * as bcrypt from 'bcryptjs';
 import { CACHE_MANAGER } from '@nestjs/common/cache';
 import { Cache } from 'cache-manager';
+import { PageDto } from '../common/dto/page.dto';
+import { PageOptionsDto } from '../common/dto/page-options.dto';
+import { PageMetaDto } from '../common/dto/page-meta.dto';
 
 @Injectable()
 export class UserService {
@@ -37,8 +40,28 @@ export class UserService {
   }
 
   // 전체 유저 찾기 로직
-  async findAll() {
-    return await this.repository.find();
+  async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<User>> {
+    // return await this.repository.find();
+    const queryBuilder = this.repository.createQueryBuilder('user');
+
+    if (pageOptionsDto.keyword) {
+      queryBuilder.andWhere('user.username = :username', {
+        username: pageOptionsDto.keyword,
+      });
+    }
+
+    queryBuilder
+      .leftJoinAndSelect('user.term', 'term')
+      .orderBy('user.createdAt', 'ASC')
+      .take(pageOptionsDto.take)
+      .skip(pageOptionsDto.skip);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+
+    return new PageDto(entities, pageMetaDto);
   }
 
   // ID or Email로 유저 찾기 로직

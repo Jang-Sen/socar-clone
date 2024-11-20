@@ -1,8 +1,9 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { Role } from './entities/role.enum';
+import { PageOptionsDto } from '../common/dto/page-options.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -16,8 +17,8 @@ export class UserController {
     summary: '전체 회원 조회',
     description: '전체 회원 조회',
   })
-  async findUser() {
-    return await this.userService.findAll();
+  async findUser(@Query() pageOptionsDto: PageOptionsDto) {
+    return await this.userService.findAll(pageOptionsDto);
   }
 
   // 특정 회원 조회(id)
