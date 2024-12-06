@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { UserModule } from '../user/user.module';
-import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { AccessTokenStrategy } from './strategies/access-token.strategy';
-import { GoogleStrategy } from './strategies/google.strategy';
-import { KakaoStrategy } from './strategies/kakao.strategy';
-import { NaverStrategy } from './strategies/naver.strategy';
-import { MailModule } from '../mail/mail.module';
-import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
+import { MailModule } from '@mail/mail.module';
+import { UserModule } from '@user/user.module';
+import { AuthController } from '@auth/auth.controller';
+import { AuthService } from '@auth/auth.service';
+import { LocalStrategy } from '@auth/strategies/local.strategy';
+import { AccessTokenStrategy } from '@auth/strategies/access-token.strategy';
+import { RefreshTokenStrategy } from '@auth/strategies/refresh-token.strategy';
+import { GoogleStrategy } from '@auth/strategies/google.strategy';
+import { KakaoStrategy } from '@auth/strategies/kakao.strategy';
+import { NaverStrategy } from '@auth/strategies/naver.strategy';
 
 @Module({
   imports: [ConfigModule, UserModule, MailModule, JwtModule.register({})],

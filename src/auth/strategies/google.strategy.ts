@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, VerifyCallback } from 'passport-google-oauth20';
 import { ConfigService } from '@nestjs/config';
-import { UserService } from '../../user/user.service';
+import { UserService } from '@user/user.service';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {

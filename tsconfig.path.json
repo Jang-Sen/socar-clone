@@ -5,6 +5,9 @@
       "@root/*": [
         "./src/*"
       ],
+      "@accommodation/*": [
+        "./src/accommodation/*"
+      ],
       "@auth/*": [
         "./src/auth/*"
       ],
