@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { RedisModule } from './redis/redis.module';
 import { MailModule } from './mail/mail.module';
 import { TermModule } from './term/term.module';
+import { AccommodationModule } from './accommodation/accommodation.module';
 import * as Joi from 'joi';
 
 @Module({
@@ -47,6 +48,7 @@ import * as Joi from 'joi';
     RedisModule,
     MailModule,
     TermModule,
+    AccommodationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
