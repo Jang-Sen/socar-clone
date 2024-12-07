@@ -1,16 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { CarModule } from './car/car.module';
-import { DatabaseModule } from './database/database.module';
-import { ConfigModule } from '@nestjs/config';
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
-import { RedisModule } from './redis/redis.module';
-import { MailModule } from './mail/mail.module';
-import { TermModule } from './term/term.module';
-import { AccommodationModule } from './accommodation/accommodation.module';
 import * as Joi from 'joi';
+import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '@database/database.module';
+import { UserModule } from '@user/user.module';
+import { CarModule } from '@car/car.module';
+import { AuthModule } from '@auth/auth.module';
+import { RedisModule } from '@redis/redis.module';
+import { MailModule } from '@mail/mail.module';
+import { TermModule } from '@term/term.module';
+import { AccommodationModule } from '@accommodation/accommodation.module';
+import { AppController } from '@root/app.controller';
+import { AppService } from '@root/app.service';
+import { MinioClientModule } from './minio-client/minio-client.module';
 
 @Module({
   imports: [
@@ -24,6 +25,11 @@ import * as Joi from 'joi';
         REDIS_HOST: Joi.string().required(),
         REDIS_PORT: Joi.number().required(),
         REDIS_TTL: Joi.number().required(),
+        MINIO_ENDPOINT: Joi.string().required(),
+        MINIO_PORT: Joi.number().required(),
+        MINIO_ROOT_USER: Joi.string().required(),
+        MINIO_ROOT_PASSWORD: Joi.string().required(),
+        MINIO_BUCKET: Joi.string().required(),
         ACCESS_TOKEN_SECRET: Joi.string().required(),
         ACCESS_TOKEN_TIME: Joi.string().required(),
         REFRESH_TOKEN_SECRET: Joi.string().required(),
@@ -49,6 +55,7 @@ import * as Joi from 'joi';
     MailModule,
     TermModule,
     AccommodationModule,
+    MinioClientModule,
   ],
   controllers: [AppController],
   providers: [AppService],

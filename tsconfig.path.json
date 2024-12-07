@@ -23,6 +23,9 @@
       "@mail/*": [
         "./src/mail/*"
       ],
+      "@minio-client/*": [
+        "./src/minio-client/*"
+      ],
       "@redis/*": [
         "./src/redis/*"
       ],
