@@ -1,11 +1,11 @@
-import { Base } from '../../common/entities/base.entity';
 import { BeforeInsert, Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Provider } from './provider.enum';
 import { Exclude } from 'class-transformer';
 import * as bcrypt from 'bcryptjs';
 import * as gravatar from 'gravatar';
-import { Term } from '../../term/entities/term.entity';
 import { Role } from './role.enum';
+import { Term } from '@term/entities/term.entity';
+import { Base } from '@common/entities/base.entity';
 
 @Entity()
 export class User extends Base {
@@ -20,13 +20,13 @@ export class User extends Base {
   public username: string;
 
   @Column({ nullable: true })
-  public phone?: number;
+  public phone?: string;
 
   @Column({ nullable: true })
   public address?: string;
 
-  @Column({ nullable: true })
-  public profileImg?: string;
+  @Column({ type: 'simple-array', nullable: true })
+  public profileImg?: string[];
 
   @Column({
     type: 'enum',
@@ -61,7 +61,7 @@ export class User extends Base {
         this.password = await bcrypt.hash(this.password, genValue);
 
         // 프로필 사진 자동생성
-        this.profileImg = gravatar.url(this.email, {
+        this.profileImg[0] = gravatar.url(this.email, {
           s: '200',
           r: 'pg',
           d: 'mm',

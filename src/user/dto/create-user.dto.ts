@@ -1,7 +1,7 @@
 import {
+  IsArray,
   IsEmail,
   IsEnum,
-  IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -24,25 +24,30 @@ export class CreateUserDto {
   password?: string;
 
   @IsString()
+  @IsOptional()
   @MinLength(2)
   @ApiProperty({ description: '이름', example: '오장원' })
   username: string;
 
-  @IsNumber()
-  @ApiProperty({ description: '핸드폰 번호', example: 1095110662 })
-  phone?: number;
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ description: '핸드폰 번호', example: '01095110662' })
+  phone?: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({ description: '주소', example: '서울시 노원구' })
   address?: string;
 
   @IsEnum(Provider)
+  @IsOptional()
   @ApiProperty({ description: '제공', example: Provider.LOCAL })
   provider?: Provider;
 
-  @IsString()
+  @IsString({ each: true })
+  @IsArray()
   @IsOptional()
-  profileImg?: string;
+  profileImg?: string[];
 
   @ApiProperty({ description: '이용약관', type: CreateTermDto })
   term?: Term;

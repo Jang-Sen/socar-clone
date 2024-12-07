@@ -16,9 +16,12 @@ import { Provider } from './entities/provider.enum';
 import * as bcrypt from 'bcryptjs';
 import { CACHE_MANAGER } from '@nestjs/common/cache';
 import { Cache } from 'cache-manager';
-import { PageDto } from '../common/dto/page.dto';
-import { PageOptionsDto } from '../common/dto/page-options.dto';
-import { PageMetaDto } from '../common/dto/page-meta.dto';
+import { MinioClientService } from '@minio-client/minio-client.service';
+import { PageOptionsDto } from '@common/dto/page-options.dto';
+import { PageMetaDto } from '@common/dto/page-meta.dto';
+import { PageDto } from '@common/dto/page.dto';
+import { UpdateUserDto } from '@user/dto/update-user.dto';
+import { BufferedFile } from '@minio-client/interface/file.model';
 
 @Injectable()
 export class UserService {
@@ -27,6 +30,7 @@ export class UserService {
     private readonly repository: Repository<User>,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly minioClientService: MinioClientService,
     @Inject(CACHE_MANAGER)
     private cache: Cache,
   ) {}
@@ -130,5 +134,28 @@ export class UserService {
     if (result) {
       return user;
     }
+  }
+
+  // 유저 프로필 변경
+  async updateProfileByToken(
+    user: User,
+    dto?: UpdateUserDto,
+    img?: BufferedFile[],
+  ) {
+    const profileUrl = await this.minioClientService.profileImgUpload(
+      user,
+      img,
+      'profile',
+    );
+    const updateResult = await this.repository.update(user.id, {
+      ...dto,
+      profileImg: profileUrl,
+    });
+
+    if (!updateResult.affected) {
+      throw new NotFoundException('회원을 찾을 수 없습니다');
+    }
+
+    return '업데이트 완료';
   }
 }

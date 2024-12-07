@@ -19,5 +19,6 @@ import { MinioModule } from 'nestjs-minio-client';
     }),
   ],
   providers: [MinioClientService],
+  exports: [MinioClientService],
 })
 export class MinioClientModule {}
