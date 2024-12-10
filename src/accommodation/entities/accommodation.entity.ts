@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { Base } from '@common/entities/base.entity';
-import { Type } from '@accommodation/entities/type.enum';
+import { AccommodationType } from '@accommodation/entities/accommodation-type.enum';
 
 @Entity()
 export class Accommodation extends Base {
@@ -11,7 +11,7 @@ export class Accommodation extends Base {
   public area: string;
 
   @Column()
-  public type: Type;
+  public accommodationType: AccommodationType;
 
   @Column()
   public reservatedAt: Date;
@@ -24,4 +24,7 @@ export class Accommodation extends Base {
 
   @Column()
   public information: string;
+
+  @Column({ type: 'simple-array', nullable: true })
+  public accommodationImgs?: string[];
 }

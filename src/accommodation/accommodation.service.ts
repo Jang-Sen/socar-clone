@@ -1,13 +1,23 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Accommodation } from '@accommodation/entities/accommodation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateAccommodationDto } from '@accommodation/dto/create-accommodation.dto';
+import { UpdateAccommodationDto } from '@accommodation/dto/update-accommodation.dto';
+import { MinioClientService } from '@minio-client/minio-client.service';
+import { BufferedFile } from '@minio-client/interface/file.model';
 
 @Injectable()
 export class AccommodationService {
   constructor(
     @InjectRepository(Accommodation)
     private readonly repository: Repository<Accommodation>,
+    private readonly minioClientService: MinioClientService,
   ) {}
 
   // 전체 조회
@@ -24,5 +34,63 @@ export class AccommodationService {
     }
 
     return accommodation;
+  }
+
+  // 생성
+  async create(dto: CreateAccommodationDto) {
+    try {
+      const accommodation = this.repository.create(dto);
+      await this.repository.save(accommodation);
+
+      return accommodation;
+    } catch (e) {
+      throw new HttpException(
+        `생성 도중 에러 발생: ${e.message}`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    // const accommodation = this.repository.create(dto);
+    //
+    // if (!accommodation) {
+    //   throw new HttpException('생성 불가', HttpStatus.BAD_REQUEST);
+    // }
+    // await this.repository.save(accommodation);
+    //
+    // return accommodation;
+  }
+
+  // 삭제
+  async delete(id: string): Promise<string> {
+    const result = await this.repository.delete(id);
+
+    if (!result.affected) {
+      throw new NotFoundException('삭제할 숙소의 ID가 아닙니다.');
+    }
+
+    return '삭제 완료';
+  }
+
+  // 수정
+  async update(
+    id: string,
+    dto?: UpdateAccommodationDto,
+    imgs?: BufferedFile[],
+  ): Promise<string> {
+    const accommodation = await this.findById(id);
+    const imgsUrl = await this.minioClientService.accommodationImgsUpload(
+      accommodation,
+      imgs,
+      'accommodation',
+    );
+    const result = await this.repository.update(id, {
+      ...dto,
+      accommodationImgs: imgsUrl,
+    });
+
+    if (!result.affected) {
+      throw new NotFoundException('숙소의 정보를 수정할 수 없습니다.');
+    }
+
+    return '수정 완료';
   }
 }

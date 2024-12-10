@@ -84,7 +84,7 @@ export class CarService {
       carImgs: carFilesUrl,
     });
 
-    if (!result) {
+    if (!result.affected) {
       throw new NotFoundException('등록된 차량이 없습니다.');
     }
 

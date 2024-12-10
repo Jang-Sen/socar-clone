@@ -5,6 +5,7 @@ import { User } from '@user/entities/user.entity';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import * as crypto from 'node:crypto';
 import { Car } from '@car/entities/car.entity';
+import { Accommodation } from '@accommodation/entities/accommodation.entity';
 
 @Injectable()
 export class MinioClientService {
@@ -21,6 +22,95 @@ export class MinioClientService {
   ) {
     this.logger = new Logger('MinioClientService');
     this.baseBucket = this.configService.get('MINIO_BUCKET');
+  }
+
+  // 숙소 사진 업로드
+  public async accommodationImgsUpload(
+    accommodation: Accommodation,
+    files: BufferedFile[],
+    categoryName: string,
+    baseBucket: string = this.baseBucket,
+  ) {
+    const uploadUrl: string[] = [];
+
+    if (files.length > 10) {
+      throw new HttpException(
+        '10개 이상의 사진은 첨부할 수 없습니다.',
+        HttpStatus.BAD_REQUEST,
+      );
+    } else {
+      // 기존 파일 존재 시, 해당되는 폴더 삭제
+      if (`${categoryName}/${accommodation.id}`.includes(accommodation.id)) {
+        await this.deleteFolderContents(
+          this.baseBucket,
+          `${categoryName}/${accommodation.id}/`,
+        );
+      }
+
+      for (const file of files) {
+        // 해당 파일이 아닐 경우 error
+        if (
+          !(
+            file.mimetype.includes('png') ||
+            file.mimetype.includes('jpg') ||
+            file.mimetype.includes('jpeg')
+          )
+        ) {
+          throw new HttpException(
+            '파일 업로드가 불가한 파일이 있습니다.',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+
+        const temp_filename = Date.now().toString();
+        const hashFilename = crypto
+          .createHash('md5')
+          .update(temp_filename)
+          .digest('hex');
+
+        const ext = file.originalname.substring(
+          file.originalname.lastIndexOf('.'),
+          file.originalname.length,
+        );
+        const metaData = {
+          'Content-Type': file.mimetype,
+          'X-Amz-Meta-Testing': 1234,
+        };
+
+        const filename = `${hashFilename}${ext}`;
+        const fileBuffer = file.buffer;
+        const filePath = `${categoryName}/${accommodation.id}/${filename}`;
+
+        // 파일 서버에 파일 넣기
+        await new Promise<void>((resolve, reject) => {
+          this.client.putObject(
+            baseBucket,
+            filePath,
+            fileBuffer,
+            fileBuffer.length,
+            metaData,
+            (error) => {
+              if (error) {
+                console.log('파일 업로드 에러: ' + error.message);
+
+                return reject(
+                  new HttpException(
+                    '업로드 에러입니다.',
+                    HttpStatus.BAD_REQUEST,
+                  ),
+                );
+              }
+
+              resolve();
+            },
+          );
+        });
+        uploadUrl.push(
+          `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
+        );
+      }
+      return uploadUrl;
+    }
   }
 
   // 자동차 사진 업로드
