@@ -1,18 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Car } from './entities/car.entity';
 import { Repository } from 'typeorm';
-import { CreateCarDto } from './dto/create-car.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
-import { PageDto } from '../common/dto/page.dto';
-import { PageOptionsDto } from '../common/dto/page-options.dto';
-import { PageMetaDto } from '../common/dto/page-meta.dto';
+import { Car } from '@car/entities/car.entity';
+import { PageOptionsDto } from '@common/dto/page-options.dto';
+import { PageMetaDto } from '@common/dto/page-meta.dto';
+import { PageDto } from '@common/dto/page.dto';
+import { CreateCarDto } from '@car/dto/create-car.dto';
+import { UpdateCarDto } from '@car/dto/update-car.dto';
+import { BufferedFile } from '@minio-client/interface/file.model';
+import { MinioClientService } from '@minio-client/minio-client.service';
 
 @Injectable()
 export class CarService {
   constructor(
     @InjectRepository(Car)
     private readonly repository: Repository<Car>,
+    private readonly minioClientService: MinioClientService,
   ) {}
 
   // 전체 찾기 로직
@@ -64,24 +67,38 @@ export class CarService {
   }
 
   // 수정 로직
-  async update(id: string, dto: UpdateCarDto) {
-    const result = await this.repository.update(id, dto);
+  async update(
+    id: string,
+    dto?: UpdateCarDto,
+    files?: BufferedFile[],
+  ): Promise<string> {
+    const car = await this.findByCarId(id);
+    const carFilesUrl = await this.minioClientService.carImgsUpload(
+      car,
+      files,
+      'car',
+    );
+
+    const result = await this.repository.update(id, {
+      ...dto,
+      carImgs: carFilesUrl,
+    });
 
     if (!result) {
       throw new NotFoundException('등록된 차량이 없습니다.');
     }
 
-    return result;
+    return '수정 완료';
   }
 
   // 삭제 로직
-  async delete(id: string) {
+  async delete(id: string): Promise<string> {
     const result = await this.repository.delete(id);
 
     if (!result.affected) {
       throw new NotFoundException('등록된 차량이 없습니다.');
     }
 
-    return result;
+    return '삭제 완료';
   }
 }

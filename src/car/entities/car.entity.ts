@@ -1,7 +1,7 @@
-import { Base } from '../../common/entities/base.entity';
 import { Column, Entity } from 'typeorm';
-import { Fuel } from './fuel.enum';
-import { Scale } from './scale.enum';
+import { Base } from '@common/entities/base.entity';
+import { Scale } from '@car/entities/scale.enum';
+import { Fuel } from '@car/entities/fuel.enum';
 
 @Entity()
 export class Car extends Base {
@@ -25,6 +25,6 @@ export class Car extends Base {
   })
   public fuel: Fuel;
 
-  @Column({ nullable: true })
-  public carImg?: string;
+  @Column({ type: 'simple-array', nullable: true })
+  public carImgs?: string[];
 }

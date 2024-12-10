@@ -7,16 +7,26 @@ import {
   Post,
   Put,
   Query,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CarService } from './car.service';
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { CreateCarDto } from './dto/create-car.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
-import { FindCarDto } from './dto/find-car.dto';
-import { RoleGuard } from '../auth/guards/role.guard';
-import { Role } from '../user/entities/role.enum';
-import { PageOptionsDto } from '../common/dto/page-options.dto';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
+import { PageOptionsDto } from '@common/dto/page-options.dto';
+import { FindCarDto } from '@car/dto/find-car.dto';
+import { RoleGuard } from '@auth/guards/role.guard';
+import { Role } from '@user/entities/role.enum';
+import { CreateCarDto } from '@car/dto/create-car.dto';
+import { UpdateCarDto } from '@car/dto/update-car.dto';
+import { BufferedFile } from '@minio-client/interface/file.model';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Car')
 @Controller('car')
@@ -71,9 +81,10 @@ export class CarController {
 
   // 등록 API
   @Post('/create')
-  @UseGuards(RoleGuard(Role.ADMIN))
+  // @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '차량 등록',
+    description: `${Role.ADMIN}만 이용가능`,
   })
   @ApiBody({
     description: '차량 등록 DTO',
@@ -85,10 +96,11 @@ export class CarController {
 
   // 수정 API
   @Put('/:id')
-  @UseGuards(RoleGuard(Role.ADMIN))
+  // @UseGuards(RoleGuard(Role.ADMIN))
+  @UseInterceptors(FilesInterceptor('carImgs'))
   @ApiOperation({
     summary: '차량 수정',
-    description: 'ID로 등록되어있는 차량의 정보 수정',
+    description: `ID로 등록되어있는 차량의 정보 수정, ${Role.ADMIN}만 이용가능`,
   })
   @ApiParam({
     name: 'id',
@@ -97,10 +109,37 @@ export class CarController {
   })
   @ApiBody({
     description: '차량 수정 DTO',
-    type: CreateCarDto,
+    schema: {
+      type: 'object',
+      properties: {
+        carName: {
+          type: 'string',
+          description: '자동차 이름',
+          example: 'K5',
+        },
+        price: {
+          type: 'number',
+          description: '자동차 가격',
+          example: 23000,
+        },
+        carImgs: {
+          type: 'array',
+          description: '자동차 이미지',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
   })
-  async update(@Param('id') id: string, @Body() dto: UpdateCarDto) {
-    return await this.carService.update(id, dto);
+  @ApiConsumes('multipart/form-data')
+  async update(
+    @Param('id') id: string,
+    @Body() dto?: UpdateCarDto,
+    @UploadedFiles() carImgs?: BufferedFile[],
+  ) {
+    return await this.carService.update(id, dto, carImgs);
   }
 
   // 삭제 API
@@ -108,7 +147,7 @@ export class CarController {
   @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '차량 삭제',
-    description: 'ID로 등록되어있는 차량을 삭제',
+    description: `ID로 등록되어있는 차량을 삭제, ${Role.ADMIN}만 이용가능`,
   })
   @ApiParam({
     name: 'id',

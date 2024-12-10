@@ -142,11 +142,9 @@ export class UserService {
     dto?: UpdateUserDto,
     img?: BufferedFile[],
   ) {
-    const profileUrl = await this.minioClientService.profileImgUpload(
-      user,
-      img,
-      'profile',
-    );
+    const profileUrl = img.length
+      ? await this.minioClientService.profileImgUpload(user, img, 'profile')
+      : [];
     const updateResult = await this.repository.update(user.id, {
       ...dto,
       profileImg: profileUrl,

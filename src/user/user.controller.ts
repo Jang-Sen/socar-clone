@@ -61,6 +61,9 @@ export class UserController {
   @Put()
   @UseGuards(AccessTokenGuard)
   @UseInterceptors(FilesInterceptor('profileImg'))
+  @ApiOperation({
+    summary: '회원 프로필 수정',
+  })
   @ApiBody({
     description: '프로필 이미지 변경',
     schema: {
@@ -68,10 +71,10 @@ export class UserController {
       properties: {
         profileImg: {
           type: 'array',
+          description: '프로필 이미지(이미지 파일 3개까지 가능)',
           items: {
             type: 'string',
             format: 'binary',
-            description: 'profileImg',
           },
         },
         address: {
@@ -82,7 +85,7 @@ export class UserController {
         phone: {
           type: 'string',
           description: 'Phone Number',
-          example: '0102345',
+          example: '01022223333',
         },
       },
     },
