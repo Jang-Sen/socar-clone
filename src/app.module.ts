@@ -12,6 +12,7 @@ import { AccommodationModule } from '@accommodation/accommodation.module';
 import { AppController } from '@root/app.controller';
 import { AppService } from '@root/app.service';
 import { MinioClientModule } from './minio-client/minio-client.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -47,6 +48,12 @@ import { MinioClientModule } from './minio-client/minio-client.module';
         NAVER_CALLBACK_URL: Joi.string().required(),
       }),
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     DatabaseModule,
     UserModule,
     CarModule,

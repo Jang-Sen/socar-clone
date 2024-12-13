@@ -8,23 +8,25 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { CreateUserDto } from '../user/dto/create-user.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { LocalGuard } from './guards/local.guard';
-import { LoginUserDto } from '../user/dto/login-user.dto';
-import { RequestUserInterface } from './interface/requestUser.interface';
-import { AccessTokenGuard } from './guards/access-token.guard';
-import { GoogleGuard } from './guards/google.guard';
-import { KakaoGuard } from './guards/kakao.guard';
-import { NaverGuard } from './guards/naver.guard';
-import { EmailDto } from '../user/dto/email.dto';
-import { UserService } from '../user/user.service';
-import { UpdatePasswordDto } from '../user/dto/update-password.dto';
-import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { Response } from 'express';
+import { AuthService } from '@auth/auth.service';
+import { CreateUserDto } from '@user/dto/create-user.dto';
+import { LocalGuard } from '@auth/guards/local.guard';
+import { LoginUserDto } from '@user/dto/login-user.dto';
+import { UserService } from '@user/user.service';
+import { RequestUserInterface } from '@auth/interface/requestUser.interface';
+import { EmailDto } from '@user/dto/email.dto';
+import { UpdatePasswordDto } from '@user/dto/update-password.dto';
+import { RefreshTokenGuard } from '@auth/guards/refresh-token.guard';
+import { AccessTokenGuard } from '@auth/guards/access-token.guard';
+import { GoogleGuard } from '@auth/guards/google.guard';
+import { KakaoGuard } from '@auth/guards/kakao.guard';
+import { NaverGuard } from '@auth/guards/naver.guard';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiTags('Auth')
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
