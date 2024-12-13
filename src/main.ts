@@ -1,15 +1,25 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  ValidationPipe,
+  VersioningType,
+} from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
-import { TransformInterceptor } from './common/interceptor/transform.interceptor';
+import { TransformInterceptor } from '@common/interceptor/transform.interceptor';
+import { AppModule } from '@root/app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api'); // url api 추가
   app.use(cookieParser()); // cookie 사용
+
+  // URI Versioning
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
 
   // Swagger
   const config = new DocumentBuilder()
