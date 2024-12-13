@@ -23,8 +23,15 @@ export class CarService {
     // return await this.repository.find();
     const queryBuilder = this.repository.createQueryBuilder('car');
 
+    if (pageOptionsDto.keyword) {
+      queryBuilder.andWhere('car.carName LIKE :carName', {
+        carName: `%${pageOptionsDto.keyword}%`,
+        // keyword: pageOptionsDto.keyword,
+      });
+    }
+
     queryBuilder
-      .orderBy('car.createdAt', 'ASC')
+      .orderBy(`car.${pageOptionsDto.sort}`, pageOptionsDto.order)
       .take(pageOptionsDto.take)
       .skip(pageOptionsDto.skip);
 

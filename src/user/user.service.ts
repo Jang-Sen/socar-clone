@@ -56,7 +56,7 @@ export class UserService {
 
     queryBuilder
       .leftJoinAndSelect('user.term', 'term')
-      .orderBy('user.createdAt', 'ASC')
+      .orderBy('user.createdAt', pageOptionsDto.order)
       .take(pageOptionsDto.take)
       .skip(pageOptionsDto.skip);
 

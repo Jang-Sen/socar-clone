@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,6 +22,9 @@ import { CreateAccommodationDto } from '@accommodation/dto/create-accommodation.
 import { UpdateAccommodationDto } from '@accommodation/dto/update-accommodation.dto';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { PageDto } from '@common/dto/page.dto';
+import { Accommodation } from '@accommodation/entities/accommodation.entity';
+import { PageOptionsDto } from '@common/dto/page-options.dto';
 
 @ApiTags('Accommodation')
 @Controller('accommodation')
@@ -29,8 +33,10 @@ export class AccommodationController {
 
   @Get('/all')
   @ApiOperation({ summary: '숙소 전체 조회' })
-  async findAll() {
-    return await this.accommodationService.findAll();
+  async findAll(
+    @Query() pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<Accommodation>> {
+    return await this.accommodationService.findAll(pageOptionsDto);
   }
 
   @Get('/:id')

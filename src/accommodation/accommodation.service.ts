@@ -11,6 +11,9 @@ import { CreateAccommodationDto } from '@accommodation/dto/create-accommodation.
 import { UpdateAccommodationDto } from '@accommodation/dto/update-accommodation.dto';
 import { MinioClientService } from '@minio-client/minio-client.service';
 import { BufferedFile } from '@minio-client/interface/file.model';
+import { PageDto } from '@common/dto/page.dto';
+import { PageOptionsDto } from '@common/dto/page-options.dto';
+import { PageMetaDto } from '@common/dto/page-meta.dto';
 
 @Injectable()
 export class AccommodationService {
@@ -21,8 +24,29 @@ export class AccommodationService {
   ) {}
 
   // 전체 조회
-  async findAll() {
-    return await this.repository.find();
+  async findAll(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<Accommodation>> {
+    // return await this.repository.find();
+    const queryBuilder = this.repository.createQueryBuilder('accommodation');
+
+    if (pageOptionsDto.keyword) {
+      queryBuilder.andWhere('accommodation.name LIKE :keyword', {
+        keyword: `${pageOptionsDto.keyword}`,
+      });
+    }
+
+    queryBuilder
+      .addOrderBy(`accommodation.${pageOptionsDto.sort}`, pageOptionsDto.order)
+      .take(pageOptionsDto.take)
+      .skip(pageOptionsDto.skip);
+
+    const itemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+
+    return new PageDto(entities, pageMetaDto);
   }
 
   // 상세 조회
