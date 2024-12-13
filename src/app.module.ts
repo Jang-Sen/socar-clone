@@ -13,6 +13,7 @@ import { AppController } from '@root/app.controller';
 import { AppService } from '@root/app.service';
 import { MinioClientModule } from './minio-client/minio-client.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
         limit: 10,
       },
     ]),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     UserModule,
     CarModule,
