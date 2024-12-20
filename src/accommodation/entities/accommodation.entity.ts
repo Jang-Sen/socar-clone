@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { Base } from '@common/entities/base.entity';
 import { AccommodationType } from '@accommodation/entities/accommodation-type.enum';
+import { Comment } from '@comment/entities/comment.entity';
 
 @Entity()
 export class Accommodation extends Base {
@@ -27,4 +28,7 @@ export class Accommodation extends Base {
 
   @Column({ type: 'simple-array', nullable: true })
   public accommodationImgs?: string[];
+
+  @OneToMany(() => Comment, (comment) => comment.accommodation)
+  public comments: Comment[];
 }
