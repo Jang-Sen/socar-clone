@@ -1,4 +1,12 @@
-import { Body, Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { CommentService } from '@comment/comment.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestUserInterface } from '@auth/interface/requestUser.interface';
@@ -13,7 +21,7 @@ export class CommentController {
   @Post('/car/:carId')
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
-    summary: '댓글 등록(자동차)',
+    summary: '자동차 댓글 등록',
     description: '자동차에 관한 댓글 등록',
   })
   async createCommentByCar(
@@ -27,7 +35,7 @@ export class CommentController {
   @Post('/accommodation/:accommodationId')
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
-    summary: '댓글 등록(숙소)',
+    summary: '숙소 댓글 등록',
     description: '숙소에 관한 댓글 등록',
   })
   async createCommentByAccommodation(
@@ -40,5 +48,21 @@ export class CommentController {
       id,
       dto,
     );
+  }
+
+  @Get('/car/:carId')
+  @ApiOperation({
+    summary: '자동차 댓글 조회',
+  })
+  async findCommentByCar(@Param('carId') id: string) {
+    return await this.commentService.findCommentByCarId(id);
+  }
+
+  @Get('/accommodation/:accommodationId')
+  @ApiOperation({
+    summary: '숙소 댓글 조회',
+  })
+  async findCommentByAccommodation(@Param('accommodationId') id: string) {
+    return await this.commentService.findCommentByAccommodationId(id);
   }
 }
