@@ -37,6 +37,7 @@ export class AccommodationService {
     }
 
     queryBuilder
+      .leftJoinAndSelect('accommodation.comments', 'comment')
       .addOrderBy(`accommodation.${pageOptionsDto.sort}`, pageOptionsDto.order)
       .take(pageOptionsDto.take)
       .skip(pageOptionsDto.skip);

@@ -9,5 +9,6 @@ import { Car } from '@car/entities/car.entity';
   imports: [TypeOrmModule.forFeature([Car]), MinioClientModule],
   controllers: [CarController],
   providers: [CarService],
+  exports: [CarService],
 })
 export class CarModule {}

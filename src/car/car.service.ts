@@ -31,6 +31,7 @@ export class CarService {
     }
 
     queryBuilder
+      .leftJoinAndSelect('car.comments', 'comment')
       .orderBy(`car.${pageOptionsDto.sort}`, pageOptionsDto.order)
       .take(pageOptionsDto.take)
       .skip(pageOptionsDto.skip);
