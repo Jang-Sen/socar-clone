@@ -61,12 +61,14 @@ export class User extends Base {
         this.password = await bcrypt.hash(this.password, genValue);
 
         // 프로필 사진 자동생성
-        this.profileImg[0] = gravatar.url(this.email, {
-          s: '200',
-          r: 'pg',
-          d: 'mm',
-          protocol: 'https',
-        });
+        this.profileImg = [
+          gravatar.url(this.email, {
+            s: '200',
+            r: 'pg',
+            d: 'mm',
+            protocol: 'https',
+          }),
+        ];
       }
     } catch (e) {
       console.log(e);

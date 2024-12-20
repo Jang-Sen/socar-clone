@@ -105,9 +105,7 @@ export class MinioClientService {
             },
           );
         });
-        uploadUrl.push(
-          `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
-        );
+        uploadUrl.push(this.getUploadUrl(filePath));
       }
       return uploadUrl;
     }
@@ -185,9 +183,7 @@ export class MinioClientService {
           },
         );
       });
-      uploadUrl.push(
-        `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
-      );
+      uploadUrl.push(this.getUploadUrl(filePath));
     }
 
     return uploadUrl;
@@ -201,6 +197,14 @@ export class MinioClientService {
     baseBucket: string = this.baseBucket,
   ) {
     const uploadUrl: string[] = [];
+
+    // 기존 파일 존재 시, 해당되는 폴더 삭제
+    if (`${categoryName}/${user.id}`.includes(user.id)) {
+      await this.deleteFolderContents(
+        this.baseBucket,
+        `${categoryName}/${user.id}/`,
+      );
+    }
 
     if (files.length > 3) {
       throw new HttpException('3개까지만 허용', HttpStatus.BAD_REQUEST);
@@ -262,13 +266,21 @@ export class MinioClientService {
             },
           );
         });
-        uploadUrl.push(
-          `http://${this.configService.get('MINIO_ENDPOINT')}:${this.configService.get('MINIO_PORT')}/${this.configService.get('MINIO_BUCKET')}/${filePath}`,
-        );
+        uploadUrl.push(this.getUploadUrl(filePath));
       }
 
       return uploadUrl;
     }
+  }
+
+  // 파일 업로드 url
+  private getUploadUrl(filePath: string): string {
+    // const minioEndpointKey = `MINIO_ENDPOINT_${this.configService.get('MINIO_INSTANCE_NUMBER')}`;
+    // const endPoint = this.configService.get('MINIO_ENDPOINT');
+    // const port = this.configService.get('MINIO_PORT');
+    const bucket = this.configService.get('MINIO_BUCKET');
+
+    return `http://localhost:9100/${bucket}/${filePath}`;
   }
 
   //  파일 서버에 수정한 파일만 남겨두고 기존 파일 삭제

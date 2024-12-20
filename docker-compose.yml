@@ -71,3 +71,4 @@ services:
 networks:
   network_js:
     driver: bridge
+    #    external: true
