@@ -135,4 +135,28 @@ export class CommentService {
 
     return '수정 완료';
   }
+
+  // 댓글 삭제
+  async deleteCommentOnlySelf(user: User, commentId: string): Promise<string> {
+    const comment = await this.repository.findOne({
+      where: {
+        id: commentId,
+      },
+      relations: {
+        user: true,
+      },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('댓글을 찾을 수 없습니다.');
+    }
+
+    if (comment.user.id !== user.id) {
+      throw new ForbiddenException('본인이 작성한 댓글만 삭제 가능합니다.');
+    }
+
+    await this.repository.remove(comment);
+
+    return '삭제 완료';
+  }
 }

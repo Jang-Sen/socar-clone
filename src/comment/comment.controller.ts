@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -80,5 +81,18 @@ export class CommentController {
     @Body() dto: UpdateCommentDto,
   ) {
     return await this.commentService.updateCommentOnlySelf(req.user, id, dto);
+  }
+
+  @Delete('/:commentId')
+  @UseGuards(AccessTokenGuard)
+  @ApiOperation({
+    summary: '댓글 삭제',
+    description: '본인이 작성한 댓글만 삭제 가능',
+  })
+  async deleteComment(
+    @Req() req: RequestUserInterface,
+    @Param('commentId') id: string,
+  ) {
+    return await this.commentService.deleteCommentOnlySelf(req.user, id);
   }
 }
