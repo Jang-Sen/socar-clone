@@ -24,6 +24,7 @@ import { GoogleGuard } from '@auth/guards/google.guard';
 import { KakaoGuard } from '@auth/guards/kakao.guard';
 import { NaverGuard } from '@auth/guards/naver.guard';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { EmailValidationDto } from '@user/dto/email-validation.dto';
 
 @ApiTags('Auth')
 @UseGuards(ThrottlerGuard)
@@ -163,7 +164,7 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    req.res.send({ user });
+    res.send({ user });
   }
 
   // 네이버 로그인 API
@@ -191,7 +192,7 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    req.res.send({ user });
+    res.send({ user });
   }
 
   // 인증 번호 발송 API
@@ -200,5 +201,13 @@ export class AuthController {
   @ApiBody({ description: 'email' })
   async sendOTP(@Body('email') email: string) {
     return await this.authService.sendEmailOTP(email);
+  }
+
+  // 인증 번호 확인 API
+  @Post('/email/check')
+  @ApiOperation({ summary: '인증번호 확인' })
+  async checkOTP(@Body() dto: EmailValidationDto) {
+    const { email, code } = dto;
+    return await this.authService.checkEmailOTP(email, code);
   }
 }

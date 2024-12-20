@@ -143,17 +143,45 @@ export class AuthService {
   }
 
   // 이메일 인증번호 로직
-  async sendEmailOTP(email: string) {
+  async sendEmailOTP(email: string): Promise<string> {
     const otpNum = this.generateOTP();
 
     // cache 저장
     await this.cache.set(email, otpNum);
 
-    return await this.mailService.sendMail({
+    const result = await this.mailService.sendMail({
       to: email,
       subject: 'socar-clone 인증번호 발송 메일입니다.',
       text: `인증번호는 ${otpNum} 입니다.`,
     });
+
+    if (result.accepted.length === 0) {
+      throw new HttpException(
+        '인증번호 전송에 실패했습니다.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return '인증번호 전송 완료';
+  }
+
+  // 이메일 인증번호 체크 로직
+  async checkEmailOTP(email: string, code: string): Promise<string> {
+    // cache에 email로 저장된 OTP 번호 갖고오기
+    const codeFromRedis = await this.cache.get(email);
+
+    // 작성한 OTP와 redis에 있는 번호가 일치한지 확인
+    if (codeFromRedis !== code) {
+      throw new HttpException(
+        'OTP 번호가 일칮하지 않습니다.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // redis에 저장된 데이터 지우기
+    await this.cache.del(email);
+
+    return '인증번호 확인 완료';
   }
 
   // 인증번호 생성 함수
