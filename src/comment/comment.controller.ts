@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestUserInterface } from '@auth/interface/requestUser.interface';
 import { CreateCommentDto } from '@comment/dto/create-comment.dto';
 import { AccessTokenGuard } from '@auth/guards/access-token.guard';
+import { UpdateCommentDto } from '@comment/dto/update-comment.dto';
 
 @ApiTags('Comment')
 @Controller('comment')
@@ -64,5 +66,19 @@ export class CommentController {
   })
   async findCommentByAccommodation(@Param('accommodationId') id: string) {
     return await this.commentService.findCommentByAccommodationId(id);
+  }
+
+  @Put('/:commentId')
+  @UseGuards(AccessTokenGuard)
+  @ApiOperation({
+    summary: '댓글 수정',
+    description: '본인이 작성한 댓글만 수정 가능',
+  })
+  async updateComment(
+    @Req() req: RequestUserInterface,
+    @Param('commentId') id: string,
+    @Body() dto: UpdateCommentDto,
+  ) {
+    return await this.commentService.updateCommentOnlySelf(req.user, id, dto);
   }
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Comment } from '@comment/entities/comment.entity';
 import { Repository } from 'typeorm';
@@ -6,6 +10,7 @@ import { User } from '@user/entities/user.entity';
 import { CreateCommentDto } from '@comment/dto/create-comment.dto';
 import { CarService } from '@car/car.service';
 import { AccommodationService } from '@accommodation/accommodation.service';
+import { UpdateCommentDto } from '@comment/dto/update-comment.dto';
 
 @Injectable()
 export class CommentService {
@@ -100,5 +105,34 @@ export class CommentService {
     }
 
     return comments;
+  }
+
+  // 댓글 수정
+  async updateCommentOnlySelf(
+    user: User,
+    commentId: string,
+    commentDto: UpdateCommentDto,
+  ): Promise<string> {
+    const comment = await this.repository.findOne({
+      where: {
+        id: commentId,
+      },
+      relations: {
+        user: true,
+      },
+    });
+
+    if (!comment) {
+      throw new NotFoundException('댓글을 찾을 수 없습니다.');
+    }
+
+    if (comment.user.id !== user.id) {
+      throw new ForbiddenException('본인이 작성한 댓글만 수정 가능합니다.');
+    }
+
+    Object.assign(comment, commentDto);
+    await this.repository.save(comment);
+
+    return '수정 완료';
   }
 }
