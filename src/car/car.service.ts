@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Car } from '@car/entities/car.entity';
@@ -9,6 +9,8 @@ import { CreateCarDto } from '@car/dto/create-car.dto';
 import { UpdateCarDto } from '@car/dto/update-car.dto';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import { MinioClientService } from '@minio-client/minio-client.service';
+import { CACHE_MANAGER } from '@nestjs/common/cache';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class CarService {
@@ -16,11 +18,15 @@ export class CarService {
     @InjectRepository(Car)
     private readonly repository: Repository<Car>,
     private readonly minioClientService: MinioClientService,
+    @Inject(CACHE_MANAGER)
+    private readonly cache: Cache,
   ) {}
 
   // 전체 찾기 로직
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Car>> {
     // return await this.repository.find();
+    const redisCar: any = await this.cache.get('car');
+
     const queryBuilder = this.repository.createQueryBuilder('car');
 
     if (pageOptionsDto.keyword) {
@@ -41,7 +47,14 @@ export class CarService {
 
     const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
 
-    return new PageDto(entities, pageMetaDto);
+    if (redisCar) {
+      console.log('Redis에 저장된 데이터 조회');
+      return new PageDto(redisCar, pageMetaDto);
+    } else {
+      console.log('DB에 있는 데이터 조회(Redis에 데이터 저장)');
+      await this.cache.set('car', entities);
+      return new PageDto(entities, pageMetaDto);
+    }
   }
 
   // ID에 맞는 차량 찾기 로직
@@ -70,6 +83,8 @@ export class CarService {
   async create(dto: CreateCarDto) {
     const result = this.repository.create(dto);
     await this.repository.save(result);
+
+    await this.cache.del('car');
 
     return result;
   }
