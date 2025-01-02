@@ -36,7 +36,6 @@ import { CommentModule } from '@comment/comment.module';
         MINIO_ENDPOINT_3: Joi.string().required(),
         MINIO_ENDPOINT_4: Joi.string().required(),
         MINIO_PORT: Joi.number().required(),
-        MINIO_EXTERNAL_PORT: Joi.number().required(),
         MINIO_ROOT_USER: Joi.string().required(),
         MINIO_ROOT_PASSWORD: Joi.string().required(),
         MINIO_BUCKET: Joi.string().required(),

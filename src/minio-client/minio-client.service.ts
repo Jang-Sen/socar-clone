@@ -279,8 +279,9 @@ export class MinioClientService {
     // const endPoint = this.configService.get('MINIO_ENDPOINT');
     // const port = this.configService.get('MINIO_PORT');
     const bucket = this.configService.get('MINIO_BUCKET');
+    const port = this.configService.get('MINIO_PORT');
 
-    return `http://localhost:9100/${bucket}/${filePath}`;
+    return `http://localhost:${port}/${bucket}/${filePath}`;
   }
 
   //  파일 서버에 수정한 파일만 남겨두고 기존 파일 삭제
