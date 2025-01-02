@@ -12,7 +12,7 @@ import { AppModule } from '@root/app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api'); // url api 추가
+  // app.setGlobalPrefix('api'); // url api 추가
   app.use(cookieParser()); // cookie 사용
 
   // URI Versioning
@@ -26,6 +26,7 @@ async function bootstrap() {
     .setTitle('socar-clone API')
     .setDescription('쏘카 클론 API')
     .setVersion('1.0')
+    .addServer('/api')
     .addBearerAuth()
     .addCookieAuth()
     .addTag('socar')
