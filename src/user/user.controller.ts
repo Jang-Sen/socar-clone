@@ -37,7 +37,7 @@ export class UserController {
   @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '전체 회원 조회',
-    description: '전체 회원 조회',
+    description: `전체 회원 조회, ${Role.ADMIN}만 이용 가능`,
   })
   async findUser(@Query() pageOptionsDto: PageOptionsDto) {
     return await this.userService.findAll(pageOptionsDto);

@@ -27,6 +27,8 @@ import { CreateCarDto } from '@car/dto/create-car.dto';
 import { UpdateCarDto } from '@car/dto/update-car.dto';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { Scale } from '@car/entities/scale.enum';
+import { Fuel } from '@car/entities/fuel.enum';
 
 @ApiTags('Car')
 @Controller('car')
@@ -81,17 +83,54 @@ export class CarController {
 
   // 등록 API
   @Post('/create')
-  // @UseGuards(RoleGuard(Role.ADMIN))
+  @UseGuards(RoleGuard(Role.ADMIN))
+  @UseInterceptors(FilesInterceptor('carImgs'))
   @ApiOperation({
     summary: '차량 등록',
     description: `${Role.ADMIN}만 이용가능`,
   })
   @ApiBody({
     description: '차량 등록 DTO',
-    type: CreateCarDto,
+    schema: {
+      type: 'object',
+      properties: {
+        carName: {
+          type: 'string',
+          description: '자동차 이름',
+          example: 'K5',
+        },
+        price: {
+          type: 'number',
+          description: '자동차 가격',
+          example: 23000,
+        },
+        scale: {
+          type: 'enum',
+          description: '자동차 분류',
+          example: Scale.DEFAULT,
+        },
+        fuel: {
+          type: 'enum',
+          description: '자동차 연료',
+          example: Fuel.DEFAULT,
+        },
+        carImgs: {
+          type: 'array',
+          description: '자동차 이미지',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
   })
-  async create(@Body() dto: CreateCarDto) {
-    return await this.carService.create(dto);
+  @ApiConsumes('multipart/form-data')
+  async create(
+    @Body() dto: CreateCarDto,
+    @UploadedFiles() carImgs: BufferedFile[],
+  ) {
+    return await this.carService.create(dto, carImgs);
   }
 
   // 수정 API

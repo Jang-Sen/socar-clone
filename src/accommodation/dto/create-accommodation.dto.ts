@@ -1,6 +1,5 @@
 import {
   IsArray,
-  IsDate,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -23,10 +22,10 @@ export class CreateAccommodationDto {
   @ApiProperty({ description: '종류', example: AccommodationType.PENSION })
   accommodationType: AccommodationType;
 
-  @IsDate()
-  @Type(() => Date)
-  @ApiProperty({ description: '예약 날짜' })
-  reservatedAt?: Date;
+  // @IsDate()
+  // @Type(() => Date)
+  // @ApiProperty({ description: '예약 날짜' })
+  // reservatedAt?: Date;
 
   @IsNumber()
   @Type(() => Number)

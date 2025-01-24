@@ -80,9 +80,19 @@ export class CarService {
   }
 
   // 생성 로직
-  async create(dto: CreateCarDto) {
+  async create(dto: CreateCarDto, carImgs: BufferedFile[]) {
     const result = this.repository.create(dto);
-    await this.repository.save(result);
+    const savedCar = await this.repository.save(result);
+
+    if (carImgs.length) {
+      savedCar.carImgs = await this.minioClientService.carImgsUpload(
+        savedCar,
+        carImgs,
+        'car',
+      );
+    }
+
+    await this.repository.save(savedCar);
 
     await this.cache.del('car');
 

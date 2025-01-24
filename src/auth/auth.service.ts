@@ -1,15 +1,15 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { LoginUserDto } from '../user/dto/login-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { TokenPayloadInterface } from './interface/tokenPayload.interface';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Provider } from '../user/entities/provider.enum';
 import { CACHE_MANAGER } from '@nestjs/common/cache';
 import { Cache } from 'cache-manager';
-import { MailService } from '../mail/mail.service';
+import { UserService } from '@user/user.service';
+import { MailService } from '@mail/mail.service';
+import { CreateUserDto } from '@user/dto/create-user.dto';
+import { Provider } from '@user/entities/provider.enum';
+import { LoginUserDto } from '@user/dto/login-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -132,7 +132,7 @@ export class AuthService {
     });
 
     // 이메일에 전송할 url 생성
-    const url = `${this.configService.get('EMAIL_BASE_URL')}/api/update/password?token=${token}`;
+    const url = `${this.configService.get('EMAIL_BASE_URL')}/update/password?token=${token}`;
 
     // 이메일 전송
     await this.mailService.sendMail({
@@ -173,7 +173,7 @@ export class AuthService {
     // 작성한 OTP와 redis에 있는 번호가 일치한지 확인
     if (codeFromRedis !== code) {
       throw new HttpException(
-        'OTP 번호가 일칮하지 않습니다.',
+        'OTP 번호가 일치하지 않습니다.',
         HttpStatus.BAD_REQUEST,
       );
     }

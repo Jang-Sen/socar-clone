@@ -49,6 +49,10 @@ import { CommentModule } from '@comment/comment.module';
         FIND_PASSWORD_TOKEN_SECRET: Joi.string().required(),
         FIND_PASSWORD_TOKEN_TIME: Joi.string().required(),
 
+        MAIL_SERVICE: Joi.string().required(),
+        MAIL_USER: Joi.string().required(),
+        MAIL_PASSWORD: Joi.string().required(),
+
         EMAIL_BASE_URL: Joi.string().required(),
 
         GOOGLE_CLIENT_ID: Joi.string().required(),
@@ -62,6 +66,7 @@ import { CommentModule } from '@comment/comment.module';
         NAVER_CLIENT_SECRET: Joi.string().required(),
         NAVER_CALLBACK_URL: Joi.string().required(),
       }),
+      envFilePath: '../../.env',
     }),
     ThrottlerModule.forRoot([
       {

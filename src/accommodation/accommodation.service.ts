@@ -62,10 +62,21 @@ export class AccommodationService {
   }
 
   // 생성
-  async create(dto: CreateAccommodationDto) {
+  async create(dto: CreateAccommodationDto, imgs: BufferedFile[]) {
     try {
       const accommodation = this.repository.create(dto);
-      await this.repository.save(accommodation);
+      const savedAd = await this.repository.save(accommodation);
+
+      if (imgs.length) {
+        savedAd.accommodationImgs =
+          await this.minioClientService.accommodationImgsUpload(
+            savedAd,
+            imgs,
+            'accommodation',
+          );
+      }
+
+      await this.repository.save(savedAd);
 
       return accommodation;
     } catch (e) {
