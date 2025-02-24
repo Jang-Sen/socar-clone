@@ -50,10 +50,8 @@ export class AuthController {
   @ApiBody({ description: '로그인 DTO', type: LoginUserDto })
   async login(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
-    const { cookie: accessTokenCookie } = this.authService.getToken(
-      'access',
-      user.id,
-    );
+    const { token: accessToken, cookie: accessTokenCookie } =
+      this.authService.getToken('access', user.id);
     const { token: refreshToken, cookie: refreshTokenCookie } =
       this.authService.getToken('refresh', user.id);
 
@@ -63,7 +61,7 @@ export class AuthController {
     // Token -> Cookie 에 담기
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    res.send({ user });
+    res.send({ user, accessToken });
     // return { user, accessToken, refreshToken };
   }
 
@@ -125,10 +123,8 @@ export class AuthController {
   @ApiOperation({ summary: '구글 로그인 콜백' })
   async googleCallback(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
-    const { cookie: accessTokenCookie } = this.authService.getToken(
-      'access',
-      user.id,
-    );
+    const { token: accessToken, cookie: accessTokenCookie } =
+      this.authService.getToken('access', user.id);
     const { token: refreshToken, cookie: refreshTokenCookie } =
       this.authService.getToken('refresh', user.id);
 
@@ -136,7 +132,7 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    res.send({ user });
+    res.send({ user, accessToken });
   }
 
   // 카카오 로그인 API
@@ -153,10 +149,8 @@ export class AuthController {
   @ApiOperation({ summary: '카카오 로그인 콜백' })
   async kakaoCallback(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
-    const { cookie: accessTokenCookie } = this.authService.getToken(
-      'access',
-      user.id,
-    );
+    const { token: accessToken, cookie: accessTokenCookie } =
+      this.authService.getToken('access', user.id);
     const { token: refreshToken, cookie: refreshTokenCookie } =
       this.authService.getToken('refresh', user.id);
 
@@ -164,7 +158,7 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    res.send({ user });
+    res.send({ user, accessToken });
   }
 
   // 네이버 로그인 API
@@ -181,10 +175,8 @@ export class AuthController {
   @ApiOperation({ summary: '네이버 로그인 콜백' })
   async naverCallback(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
-    const { cookie: accessTokenCookie } = this.authService.getToken(
-      'access',
-      user.id,
-    );
+    const { token: accessToken, cookie: accessTokenCookie } =
+      this.authService.getToken('access', user.id);
     const { token: refreshToken, cookie: refreshTokenCookie } =
       this.authService.getToken('refresh', user.id);
 
@@ -192,7 +184,7 @@ export class AuthController {
 
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
-    res.send({ user });
+    res.send({ user, accessToken });
   }
 
   // 인증 번호 발송 API
