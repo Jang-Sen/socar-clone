@@ -1,5 +1,24 @@
-Dockerfile
-.dockerignore
+# Node modules
 node_modules
-npm-debug.log
+
+# Dist directory
 dist
+
+# Logs
+*.log
+
+# 환경 변수 파일
+.env
+.env.*
+
+# TypeScript output
+*.tsbuildinfo
+
+# Docker 관련
+Dockerfile
+docker-compose.*
+
+# 기타
+coverage
+.cache
+.git
