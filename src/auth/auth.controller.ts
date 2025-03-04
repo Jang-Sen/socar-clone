@@ -8,7 +8,13 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from '@auth/auth.service';
 import { CreateUserDto } from '@user/dto/create-user.dto';
@@ -39,6 +45,7 @@ export class AuthController {
   @Post('/signup')
   @ApiOperation({ summary: '회원가입' })
   @ApiBody({ description: '회원가입 DTO', type: CreateUserDto })
+  @ApiConsumes('application/x-www-form-urlencoded')
   async signup(@Body() dto: CreateUserDto) {
     return await this.authService.signup(dto);
   }
@@ -48,6 +55,7 @@ export class AuthController {
   @UseGuards(LocalGuard)
   @ApiOperation({ summary: '로그인' })
   @ApiBody({ description: '로그인 DTO', type: LoginUserDto })
+  @ApiConsumes('application/x-www-form-urlencoded')
   async login(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
     const { token: accessToken, cookie: accessTokenCookie } =
@@ -69,6 +77,7 @@ export class AuthController {
   @Post('/find/password')
   @ApiOperation({ summary: '비밀번호 변경 이메일 보내기' })
   @ApiBody({ description: '이메일 DTO', type: EmailDto })
+  @ApiConsumes('application/x-www-form-urlencoded')
   async findPassword(@Body() dto: EmailDto) {
     return await this.authService.findPasswordSendEmail(dto.email);
   }
@@ -77,6 +86,7 @@ export class AuthController {
   @Post('/update/password')
   @ApiOperation({ summary: '비밀번호 변경' })
   @ApiBody({ description: '비밀번호 변경 DTO', type: UpdatePasswordDto })
+  @ApiConsumes('application/x-www-form-urlencoded')
   async updatePassword(@Body() dto: UpdatePasswordDto) {
     return await this.userService.updatePasswordWithToken(
       dto.token,
@@ -198,6 +208,7 @@ export class AuthController {
   // 인증 번호 확인 API
   @Post('/email/check')
   @ApiOperation({ summary: '인증번호 확인' })
+  @ApiConsumes('application/x-www-form-urlencoded')
   async checkOTP(@Body() dto: EmailValidationDto) {
     const { email, code } = dto;
     return await this.authService.checkEmailOTP(email, code);

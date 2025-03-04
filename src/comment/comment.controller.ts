@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommentService } from '@comment/comment.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RequestUserInterface } from '@auth/interface/requestUser.interface';
 import { CreateCommentDto } from '@comment/dto/create-comment.dto';
 import { AccessTokenGuard } from '@auth/guards/access-token.guard';
@@ -27,6 +27,7 @@ export class CommentController {
     summary: '자동차 댓글 등록',
     description: '자동차에 관한 댓글 등록',
   })
+  @ApiConsumes('application/x-www-form-urlencoded')
   async createCommentByCar(
     @Req() req: RequestUserInterface,
     @Param('carId') id: string,
@@ -41,6 +42,7 @@ export class CommentController {
     summary: '숙소 댓글 등록',
     description: '숙소에 관한 댓글 등록',
   })
+  @ApiConsumes('application/x-www-form-urlencoded')
   async createCommentByAccommodation(
     @Req() req: RequestUserInterface,
     @Param('accommodationId') id: string,
@@ -75,6 +77,7 @@ export class CommentController {
     summary: '댓글 수정',
     description: '본인이 작성한 댓글만 수정 가능',
   })
+  @ApiConsumes('application/x-www-form-urlencoded')
   async updateComment(
     @Req() req: RequestUserInterface,
     @Param('commentId') id: string,

@@ -15,6 +15,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MinioClientModule } from '@minio-client/minio-client.module';
 import { CommentModule } from '@comment/comment.module';
+import { ReserveModule } from './reserve/reserve.module';
 
 @Module({
   imports: [
@@ -31,10 +32,6 @@ import { CommentModule } from '@comment/comment.module';
         REDIS_TTL: Joi.number().required(),
 
         MINIO_ENDPOINT: Joi.string().required(),
-        MINIO_ENDPOINT_1: Joi.string().required(),
-        MINIO_ENDPOINT_2: Joi.string().required(),
-        MINIO_ENDPOINT_3: Joi.string().required(),
-        MINIO_ENDPOINT_4: Joi.string().required(),
         MINIO_PORT: Joi.number().required(),
         MINIO_ROOT_USER: Joi.string().required(),
         MINIO_ROOT_PASSWORD: Joi.string().required(),
@@ -85,6 +82,7 @@ import { CommentModule } from '@comment/comment.module';
     AccommodationModule,
     MinioClientModule,
     CommentModule,
+    ReserveModule,
   ],
   controllers: [AppController],
   providers: [AppService],

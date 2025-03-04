@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Term } from './entities/term.entity';
 import { Repository } from 'typeorm';
 import { CreateTermDto } from './dto/create-term.dto';
-import { User } from '../user/entities/user.entity';
 import { UpdateTermDto } from './dto/update-term.dto';
+import { User } from '@user/entities/user.entity';
 
 @Injectable()
 export class TermService {
