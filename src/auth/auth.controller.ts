@@ -45,7 +45,7 @@ export class AuthController {
   @Post('/signup')
   @ApiOperation({ summary: '회원가입' })
   @ApiBody({ description: '회원가입 DTO', type: CreateUserDto })
-  @ApiConsumes('application/x-www-form-urlencoded')
+  // @ApiConsumes('application/x-www-form-urlencoded')
   async signup(@Body() dto: CreateUserDto) {
     return await this.authService.signup(dto);
   }
