@@ -47,14 +47,14 @@ export class CarService {
 
     const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
 
-    if (redisCar) {
-      console.log('Redis에 저장된 데이터 조회');
-      return new PageDto(redisCar, pageMetaDto);
-    } else {
-      console.log('DB에 있는 데이터 조회(Redis에 데이터 저장)');
-      await this.cache.set('car', entities);
-      return new PageDto(entities, pageMetaDto);
-    }
+    // if (redisCar) {
+    //   console.log('Redis에 저장된 데이터 조회');
+    //   return new PageDto(redisCar, pageMetaDto);
+    // } else {
+    //   console.log('DB에 있는 데이터 조회(Redis에 데이터 저장)');
+    //   await this.cache.set('car', entities);
+    return new PageDto(entities, pageMetaDto);
+    // }
   }
 
   // ID에 맞는 차량 찾기 로직

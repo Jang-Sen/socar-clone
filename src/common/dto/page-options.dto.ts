@@ -11,16 +11,16 @@ export class PageOptionsDto {
   @IsEnum(Order)
   @IsOptional()
   @ApiPropertyOptional({
-    description: '정렬 순서',
+    description: '차순(기본 내림차순)',
     enum: Order,
     default: Order.ASC,
   })
-  readonly order?: Order = Order.ASC;
+  readonly order?: Order = Order.DESC;
 
   @IsEnum(Sort)
   @IsOptional()
   @ApiPropertyOptional({
-    description: '정렬 기준',
+    description: '정렬 기준(기본 생성일자)',
     enum: Sort,
     default: Sort.CREATED_AT,
   })
