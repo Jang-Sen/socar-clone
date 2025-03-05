@@ -33,6 +33,7 @@ import { ReserveModule } from './reserve/reserve.module';
 
         MINIO_ENDPOINT: Joi.string().required(),
         MINIO_PORT: Joi.number().required(),
+        MINIO_EXTERNAL_PORT: Joi.number().required(),
         MINIO_ROOT_USER: Joi.string().required(),
         MINIO_ROOT_PASSWORD: Joi.string().required(),
         MINIO_BUCKET: Joi.string().required(),
