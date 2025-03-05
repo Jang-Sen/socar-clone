@@ -279,7 +279,7 @@ export class MinioClientService {
     // const endPoint = this.configService.get('MINIO_ENDPOINT');
     // const port = this.configService.get('MINIO_PORT');
     const bucket = this.configService.get('MINIO_BUCKET');
-    const port = this.configService.get('MINIO_PORT');
+    const port = this.configService.get('MINIO_EXTERNAL_PORT');
 
     return `http://localhost:${port}/${bucket}/${filePath}`;
   }
