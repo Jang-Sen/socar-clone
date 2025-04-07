@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Car } from '@car/entities/car.entity';
@@ -14,6 +14,8 @@ import { Cache } from 'cache-manager';
 
 @Injectable()
 export class CarService {
+  private readonly logger = new Logger(CarService.name);
+
   constructor(
     @InjectRepository(Car)
     private readonly repository: Repository<Car>,
@@ -133,5 +135,43 @@ export class CarService {
     }
 
     return '삭제 완료';
+  }
+
+  // 엑셀 파일 업로드
+  async insertExcel(cars: Partial<Car>[]): Promise<number> {
+    if (cars.length === 0) return 0;
+
+    // 이미 존재하는 자동차 번호 조회
+    const existings = await this.repository.find({
+      where: cars.map((car) => ({
+        carNo: car.carNo,
+      })),
+    });
+
+    const existingMap = new Map(
+      existings.map((value) => [`${value.carNo}`, value]),
+    );
+
+    const toInsert: Partial<Car>[] = [];
+    const toUpdate: { id: string; data: Partial<Car> }[] = [];
+
+    for (const car of cars) {
+      const key = `${car.carNo}`;
+      const existing = existingMap.get(key);
+
+      if (existing) {
+        toUpdate.push({ id: existing.id, data: car });
+      } else {
+        toInsert.push(car);
+      }
+    }
+
+    if (toInsert.length) await this.repository.save(toInsert);
+
+    for (const { id, data } of toUpdate) {
+      await this.repository.update(id, data);
+    }
+
+    return toInsert.length + toUpdate.length;
   }
 }

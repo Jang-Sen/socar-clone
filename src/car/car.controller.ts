@@ -3,10 +3,12 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Post,
   Put,
   Query,
+  UploadedFile,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -26,13 +28,18 @@ import { Role } from '@user/entities/role.enum';
 import { CreateCarDto } from '@car/dto/create-car.dto';
 import { UpdateCarDto } from '@car/dto/update-car.dto';
 import { BufferedFile } from '@minio-client/interface/file.model';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Scale } from '@car/entities/scale.enum';
 import { Fuel } from '@car/entities/fuel.enum';
+import * as XLSX from 'xlsx';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 
 @ApiTags('Car')
 @Controller('car')
 export class CarController {
+  private readonly logger = new Logger();
+
   constructor(private readonly carService: CarService) {}
 
   // 전체 찾기 API
@@ -195,5 +202,61 @@ export class CarController {
   })
   async delete(@Param('id') id: string) {
     return await this.carService.delete(id);
+  }
+
+  @Post()
+  @UseInterceptors(FileInterceptor('file'))
+  @ApiOperation({ summary: '엑셀 파일 업로드를 통해 등록 API' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: '업로드할 Excel 파일(.xlsx)',
+        },
+      },
+    },
+  })
+  async insertExcel(@UploadedFile() file: any) {
+    const workBook = XLSX.read(file.buffer, { type: 'buffer' });
+    const sheet = workBook.Sheets[workBook.SheetNames[0]];
+    const datas: any[] = XLSX.utils.sheet_to_json(sheet, { defval: null });
+
+    const totalRows = datas.length;
+
+    const dtos = await Promise.all(
+      datas.map(async (data) => {
+        const dto = plainToInstance(CreateCarDto, {
+          carName: data['차량명']?.toString(),
+          grade: data['등급']?.toString(),
+          carYear: data['연식'] ? Number(data['연식']) : undefined,
+          carNo: data['차량no.']?.toString(),
+          price: data['제시금액'] ? Number(data['제시금액']) : undefined,
+          transmission: data['변속기']?.toString(),
+          mileage: data['주행거리'] ? Number(data['주행거리']) : undefined,
+          displacement: data['배기량'] ? Number(data['배기량']) : undefined,
+          fuel: data['연료']?.toString() as Fuel,
+        });
+
+        const error = await validate(dto);
+        return error.length === 0 ? dto : null;
+      }),
+    );
+
+    const validDtos = dtos.filter((dto): dto is CreateCarDto => dto !== null);
+
+    const processed = await this.carService.insertExcel(validDtos);
+
+    const skippedRows = totalRows - processed;
+
+    this.logger.log(
+      `✅ 저장된 데이터 수: ${processed}, ❌ 스킵된 데이터 수: ${skippedRows}`,
+    );
+
+    return { totalRows, processed, skippedRows };
   }
 }
