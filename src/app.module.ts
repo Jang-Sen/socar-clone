@@ -16,6 +16,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MinioClientModule } from '@minio-client/minio-client.module';
 import { CommentModule } from '@comment/comment.module';
 import { ReserveModule } from './reserve/reserve.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { ReserveModule } from './reserve/reserve.module';
     MinioClientModule,
     CommentModule,
     ReserveModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

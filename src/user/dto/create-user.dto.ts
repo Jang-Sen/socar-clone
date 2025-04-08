@@ -8,9 +8,11 @@ import {
   MinLength,
 } from 'class-validator';
 import { Provider } from '../entities/provider.enum';
-import { ApiProperty } from '@nestjs/swagger';
-import { Term } from '../../term/entities/term.entity';
-import { CreateTermDto } from '../../term/dto/create-term.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { CreateTermDto } from '@term/dto/create-term.dto';
+import { Term } from '@term/entities/term.entity';
+import { Profile } from '@root/profile/entities/profile.entity';
+import { CreateProfileDto } from '@root/profile/dto/create-profile.dto';
 
 export class CreateUserDto {
   @IsEmail()
@@ -29,26 +31,21 @@ export class CreateUserDto {
   @ApiProperty({ description: '이름', example: '오장원' })
   username: string;
 
-  @IsString()
-  @IsOptional()
-  @ApiProperty({ description: '핸드폰 번호', example: '01095110662' })
-  phone?: string;
-
-  @IsString()
-  @IsOptional()
-  @ApiProperty({ description: '주소', example: '서울시 노원구' })
-  address?: string;
+  @ApiPropertyOptional({ description: '유저 프로필', type: CreateProfileDto })
+  profile?: Profile;
 
   @IsEnum(Provider)
   @IsOptional()
-  @ApiProperty({ description: '제공', example: Provider.LOCAL })
+  @ApiPropertyOptional({ description: '제공', example: Provider.LOCAL })
   provider?: Provider;
 
   @IsString({ each: true })
   @IsArray()
   @IsOptional()
+  @ApiPropertyOptional({ description: '프로필 이미지', default: null })
   profileImg?: string[];
 
-  @ApiProperty({ description: '이용약관', type: CreateTermDto })
+  @IsOptional()
+  @ApiPropertyOptional({ description: '이용약관', type: CreateTermDto })
   term?: Term;
 }

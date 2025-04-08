@@ -14,6 +14,7 @@ import { Role } from './role.enum';
 import { Term } from '@term/entities/term.entity';
 import { Base } from '@common/entities/base.entity';
 import { Comment } from '@comment/entities/comment.entity';
+import { Profile } from '@root/profile/entities/profile.entity';
 
 @Entity()
 export class User extends Base {
@@ -27,14 +28,16 @@ export class User extends Base {
   @Column()
   public username: string;
 
-  @Column({ nullable: true })
-  public phone?: string;
-
-  @Column({ nullable: true })
-  public address?: string;
-
   @Column({ type: 'simple-array', nullable: true })
   public profileImg?: string[];
+
+  @OneToOne(() => Profile, (profile: Profile) => profile.user, {
+    cascade: true,
+    eager: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  public profile: Profile;
 
   @Column({
     type: 'enum',
@@ -60,6 +63,9 @@ export class User extends Base {
 
   @OneToMany(() => Comment, (comment) => comment.user)
   public comments: Comment[];
+
+  // @OneToMany(() => Reserve, (reserve) => reserve.user)
+  // public reserve: Reserve[];
 
   @BeforeInsert()
   async beforeFunction() {
