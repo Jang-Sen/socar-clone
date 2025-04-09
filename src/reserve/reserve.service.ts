@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Reserve } from '@root/reserve/entities/reserve.entity';
 import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
@@ -45,5 +49,27 @@ export class ReserveService {
     });
 
     return await this.repository.save(reserve);
+  }
+
+  // 예약 취소
+  async cancelReserve(user: User, reserveId: string): Promise<string> {
+    const reserve = await this.repository.findOne({
+      where: {
+        user: { id: user.id },
+        id: reserveId,
+      },
+    });
+
+    if (!reserve) {
+      throw new NotFoundException(
+        '예약된 정보가 존재하지 않거나 권한이 없는 계정입니다.',
+      );
+    }
+
+    reserve.status = ReserveStatus.CANCELED;
+
+    await this.repository.save(reserve);
+
+    return '예약이 취소되었습니다.';
   }
 }
