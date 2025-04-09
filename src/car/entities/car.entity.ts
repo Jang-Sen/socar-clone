@@ -3,6 +3,7 @@ import { Base } from '@common/entities/base.entity';
 import { Scale } from '@car/entities/scale.enum';
 import { Fuel } from '@car/entities/fuel.enum';
 import { Comment } from '@comment/entities/comment.entity';
+import { Reserve } from '@root/reserve/entities/reserve.entity';
 
 @Entity()
 export class Car extends Base {
@@ -53,9 +54,9 @@ export class Car extends Base {
   @Column({ nullable: true })
   public memo?: string;
 
-  @OneToMany(() => Comment, (comment) => comment.car)
+  @OneToMany(() => Comment, (comment: Comment) => comment.car)
   public comments: Comment[];
 
-  // @OneToMany(() => Reserve, (reserve) => reserve.car)
-  // public reserve: Reserve[];
+  @OneToMany(() => Reserve, (reserve: Reserve) => reserve.car)
+  public reserves: Reserve[];
 }

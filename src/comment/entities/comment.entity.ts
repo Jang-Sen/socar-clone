@@ -9,6 +9,9 @@ export class Comment extends Base {
   @Column()
   public contents: string;
 
+  @Column()
+  public rating: number;
+
   @ManyToOne(() => User, (user) => user.comments)
   public user: User;
 

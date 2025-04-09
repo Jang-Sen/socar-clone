@@ -24,8 +24,8 @@ export class CommentController {
   @Post('/car/:carId')
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
-    summary: '자동차 댓글 등록',
-    description: '자동차에 관한 댓글 등록',
+    summary: '자동차 리뷰 등록',
+    description: '자동차에 관한 리뷰 등록',
   })
   @ApiConsumes('application/x-www-form-urlencoded')
   async createCommentByCar(
@@ -39,8 +39,8 @@ export class CommentController {
   @Post('/accommodation/:accommodationId')
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
-    summary: '숙소 댓글 등록',
-    description: '숙소에 관한 댓글 등록',
+    summary: '숙소 리뷰 등록',
+    description: '숙소에 관한 리뷰 등록',
   })
   @ApiConsumes('application/x-www-form-urlencoded')
   async createCommentByAccommodation(
@@ -57,7 +57,7 @@ export class CommentController {
 
   @Get('/car/:carId')
   @ApiOperation({
-    summary: '자동차 댓글 조회',
+    summary: '자동차 리뷰 조회',
   })
   async findCommentByCar(@Param('carId') id: string) {
     return await this.commentService.findCommentByCarId(id);
@@ -65,7 +65,7 @@ export class CommentController {
 
   @Get('/accommodation/:accommodationId')
   @ApiOperation({
-    summary: '숙소 댓글 조회',
+    summary: '숙소 리뷰 조회',
   })
   async findCommentByAccommodation(@Param('accommodationId') id: string) {
     return await this.commentService.findCommentByAccommodationId(id);
@@ -74,8 +74,8 @@ export class CommentController {
   @Put('/:commentId')
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
-    summary: '댓글 수정',
-    description: '본인이 작성한 댓글만 수정 가능',
+    summary: '리뷰 수정',
+    description: '본인이 작성한 리뷰만 수정 가능',
   })
   @ApiConsumes('application/x-www-form-urlencoded')
   async updateComment(
@@ -89,8 +89,8 @@ export class CommentController {
   @Delete('/:commentId')
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
-    summary: '댓글 삭제',
-    description: '본인이 작성한 댓글만 삭제 가능',
+    summary: '리뷰 삭제',
+    description: '본인이 작성한 리뷰만 삭제 가능',
   })
   async deleteComment(
     @Req() req: RequestUserInterface,

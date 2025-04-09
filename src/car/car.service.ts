@@ -108,11 +108,9 @@ export class CarService {
     files?: BufferedFile[],
   ): Promise<string> {
     const car = await this.findByCarId(id);
-    const carFilesUrl = await this.minioClientService.carImgsUpload(
-      car,
-      files,
-      'car',
-    );
+    const carFilesUrl = files.length
+      ? await this.minioClientService.carImgsUpload(car, files, 'car')
+      : [];
 
     const result = await this.repository.update(id, {
       ...dto,

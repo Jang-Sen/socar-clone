@@ -15,6 +15,7 @@ import { Term } from '@term/entities/term.entity';
 import { Base } from '@common/entities/base.entity';
 import { Comment } from '@comment/entities/comment.entity';
 import { Profile } from '@root/profile/entities/profile.entity';
+import { Reserve } from '@root/reserve/entities/reserve.entity';
 
 @Entity()
 export class User extends Base {
@@ -53,7 +54,7 @@ export class User extends Base {
   })
   public role: Role;
 
-  @OneToOne(() => Term, (term) => term.user, {
+  @OneToOne(() => Term, (term: Term) => term.user, {
     cascade: true,
     eager: true,
     onDelete: 'CASCADE',
@@ -61,11 +62,11 @@ export class User extends Base {
   @JoinColumn()
   public term: Term;
 
-  @OneToMany(() => Comment, (comment) => comment.user)
+  @OneToMany(() => Comment, (comment: Comment) => comment.user)
   public comments: Comment[];
 
-  // @OneToMany(() => Reserve, (reserve) => reserve.user)
-  // public reserve: Reserve[];
+  @OneToMany(() => Reserve, (reserve: Reserve) => reserve.user)
+  public reserves: Reserve[];
 
   @BeforeInsert()
   async beforeFunction() {
