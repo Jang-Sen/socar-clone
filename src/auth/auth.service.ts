@@ -19,7 +19,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
     @Inject(CACHE_MANAGER)
-    private cache: Cache,
+    private cacheManager: Cache,
   ) {}
 
   // 회원가입 로직
@@ -132,7 +132,7 @@ export class AuthService {
     });
 
     // 이메일에 전송할 url 생성
-    const url = `${this.configService.get('EMAIL_BASE_URL')}/update/password?token=${token}`;
+    const url = `${this.configService.get('EMAIL_BASE_URL')}/reset-password?token=${token}`;
 
     // 이메일 전송
     await this.mailService.sendMail({
@@ -147,7 +147,7 @@ export class AuthService {
     const otpNum = this.generateOTP();
 
     // cache 저장
-    await this.cache.set(email, otpNum);
+    await this.cacheManager.set(email, otpNum);
 
     const result = await this.mailService.sendMail({
       to: email,
@@ -168,7 +168,7 @@ export class AuthService {
   // 이메일 인증번호 체크 로직
   async checkEmailOTP(email: string, code: string): Promise<string> {
     // cache에 email로 저장된 OTP 번호 갖고오기
-    const codeFromRedis = await this.cache.get(email);
+    const codeFromRedis = await this.cacheManager.get(email);
 
     // 작성한 OTP와 redis에 있는 번호가 일치한지 확인
     if (codeFromRedis !== code) {
@@ -179,7 +179,7 @@ export class AuthService {
     }
 
     // redis에 저장된 데이터 지우기
-    await this.cache.del(email);
+    await this.cacheManager.del(email);
 
     return '인증번호 확인 완료';
   }

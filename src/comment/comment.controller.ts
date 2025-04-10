@@ -10,13 +10,19 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommentService } from '@comment/comment.service';
-import { ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RequestUserInterface } from '@auth/interface/requestUser.interface';
 import { CreateCommentDto } from '@comment/dto/create-comment.dto';
 import { AccessTokenGuard } from '@auth/guards/access-token.guard';
 import { UpdateCommentDto } from '@comment/dto/update-comment.dto';
 
-@ApiTags('Comment')
+@ApiTags('리뷰 API')
 @Controller('comment')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
@@ -24,8 +30,18 @@ export class CommentController {
   @Post('/car/:carId')
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
-    summary: '자동차 리뷰 등록',
-    description: '자동차에 관한 리뷰 등록',
+    summary: '차량 리뷰 등록',
+    description: `
+    이용한 차량에 관한 리뷰를 작성합니다.
+    `,
+  })
+  @ApiParam({
+    name: 'carId',
+    description: '차량 ID',
+  })
+  @ApiBody({
+    description: '리뷰 생성 DTO',
+    type: CreateCommentDto,
   })
   @ApiConsumes('application/x-www-form-urlencoded')
   async createCommentByCar(
@@ -40,7 +56,17 @@ export class CommentController {
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
     summary: '숙소 리뷰 등록',
-    description: '숙소에 관한 리뷰 등록',
+    description: `
+    이용한 숙소에 관한 리뷰를 작성합니다.
+    `,
+  })
+  @ApiParam({
+    name: 'accommodationId',
+    description: '숙소 ID',
+  })
+  @ApiBody({
+    description: '리뷰 생성 DTO',
+    type: CreateCommentDto,
   })
   @ApiConsumes('application/x-www-form-urlencoded')
   async createCommentByAccommodation(
@@ -57,7 +83,14 @@ export class CommentController {
 
   @Get('/car/:carId')
   @ApiOperation({
-    summary: '자동차 리뷰 조회',
+    summary: '차량 리뷰 조회',
+    description: `
+    해당 차량에 대한 리뷰를 조회합니다.
+    `,
+  })
+  @ApiParam({
+    name: 'carId',
+    description: '차량 ID',
   })
   async findCommentByCar(@Param('carId') id: string) {
     return await this.commentService.findCommentByCarId(id);
@@ -66,6 +99,13 @@ export class CommentController {
   @Get('/accommodation/:accommodationId')
   @ApiOperation({
     summary: '숙소 리뷰 조회',
+    description: `
+    해당 숙소에 대한 리뷰를 조회합니다.
+    `,
+  })
+  @ApiParam({
+    name: 'accommodationId',
+    description: '숙소 ID',
   })
   async findCommentByAccommodation(@Param('accommodationId') id: string) {
     return await this.commentService.findCommentByAccommodationId(id);
@@ -75,7 +115,19 @@ export class CommentController {
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
     summary: '리뷰 수정',
-    description: '본인이 작성한 리뷰만 수정 가능',
+    description: `
+    작성한 리뷰를 수정합니다.
+      - 세부사항:
+        - 해당 리뷰를 작성한 작성자만 수정 가능
+    `,
+  })
+  @ApiParam({
+    name: 'commentId',
+    description: '리뷰 ID',
+  })
+  @ApiBody({
+    description: '리뷰 수정 DTO',
+    type: UpdateCommentDto,
   })
   @ApiConsumes('application/x-www-form-urlencoded')
   async updateComment(
@@ -90,7 +142,15 @@ export class CommentController {
   @UseGuards(AccessTokenGuard)
   @ApiOperation({
     summary: '리뷰 삭제',
-    description: '본인이 작성한 리뷰만 삭제 가능',
+    description: `
+    작성한 리뷰를 삭제합니다.
+      - 세부사항:
+        - 해당 리뷰를 작성한 작성자만 삭제 가능
+    `,
+  })
+  @ApiParam({
+    name: 'commentId',
+    description: '리뷰 ID',
   })
   async deleteComment(
     @Req() req: RequestUserInterface,

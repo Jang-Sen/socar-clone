@@ -37,6 +37,12 @@ export class UserService {
 
   // 유저 생성 로직
   async createUser(dto: CreateUserDto) {
+    const existing = await this.repository.findOneBy({ email: dto.email });
+
+    if (existing) {
+      throw new BadRequestException('이미 존재하는 계정입니다.');
+    }
+
     const user = this.repository.create(dto);
     await this.repository.save(user);
 
@@ -57,6 +63,7 @@ export class UserService {
     queryBuilder
       .leftJoinAndSelect('user.comments', 'comment')
       .leftJoinAndSelect('user.term', 'term')
+      .leftJoinAndSelect('user.reserves', 'reserve')
       .orderBy('user.createdAt', pageOptionsDto.order)
       .take(pageOptionsDto.take)
       .skip(pageOptionsDto.skip);

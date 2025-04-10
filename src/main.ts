@@ -24,16 +24,15 @@ async function bootstrap() {
 
   // Swagger
   const config = new DocumentBuilder()
-    .setTitle('socar-clone API')
-    .setDescription('쏘카 클론 API')
+    .setTitle('와보카 API')
+    .setDescription('와보카 API 입니다.')
     .setVersion('1.0')
-    .addServer('http://localhost:81/api')
+    .addServer('http://localhost:81/api', 'Local')
     // .addServer('http://localhost:8100')
-    .addServer('http://jangsen.duckdns.org:81/api')
+    .addServer('https://jangsen.duckdns.org:443/api', 'Production')
     // .addServer('http://jangsen.duckdns.org:8100')
     .addBearerAuth()
     .addCookieAuth()
-    .addTag('socar')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);

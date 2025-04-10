@@ -17,20 +17,21 @@ export class Profile {
   @Column({ nullable: true })
   public address?: string;
 
-  @Column({ type: 'date' })
-  public birth: Date;
+  @Column({ type: 'date', default: null })
+  public birth?: Date;
 
   @Column({
     type: 'enum',
     enum: Gender,
     default: Gender.DEFAULT,
   })
-  public gender: Gender;
+  public gender?: Gender;
 
   @Column({
     type: 'enum',
     enum: Grade,
     default: Grade.BRONZE,
+    nullable: true,
   })
-  public grade: Grade;
+  public grade?: Grade;
 }

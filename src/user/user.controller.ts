@@ -14,9 +14,11 @@ import { UserService } from './user.service';
 import {
   ApiBody,
   ApiConsumes,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { Role } from './entities/role.enum';
 import { AccessTokenGuard } from '@auth/guards/access-token.guard';
@@ -26,8 +28,9 @@ import { UpdateUserDto } from '@user/dto/update-user.dto';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { PageOptionsDto } from '@common/dto/page-options.dto';
+import { FindAllUsersResponseDto } from '@user/dto/user-response.dto';
 
-@ApiTags('User')
+@ApiTags('유저 API')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -37,7 +40,21 @@ export class UserController {
   @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '전체 회원 조회',
-    description: `전체 회원 조회, ${Role.ADMIN}만 이용 가능`,
+    description: `
+    DB에 저장된 회원 목록을 조회합니다.
+     - 세부사항:
+      - ${Role.ADMIN}만 접근 가능
+      - 페이지네이션(Pagination) 지원 (예: 페이지당 10건)
+      - 이름으로 필터링할 수 있는 검색 기능 제공
+      - 정렬 기능 제공
+    `,
+  })
+  @ApiOkResponse({
+    description: '조회 성공',
+    type: FindAllUsersResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: `${Role.ADMIN}만 접근 가능`,
   })
   async findUser(@Query() pageOptionsDto: PageOptionsDto) {
     return await this.userService.findAll(pageOptionsDto);
@@ -48,11 +65,18 @@ export class UserController {
   @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
     summary: '특정 회원 조회',
-    description: '특정 회원 조회(userId)',
+    description: `
+    DB에 저장된 회원 중 특정 회원의 ID를 이용하여 조회합니다.
+      - 세부사항:
+        - ${Role.ADMIN}만 접근 가능
+    `,
   })
   @ApiParam({
     name: 'id',
     description: '회원 ID',
+  })
+  @ApiUnauthorizedResponse({
+    description: `${Role.ADMIN}만 접근 가능`,
   })
   async findByUserId(@Param('id') id: string) {
     return await this.userService.findBy('id', id);
@@ -62,7 +86,13 @@ export class UserController {
   @UseGuards(AccessTokenGuard)
   @UseInterceptors(FilesInterceptor('profileImg'))
   @ApiOperation({
-    summary: '회원 프로필 수정',
+    summary: '회원 프로필 이미지 수정',
+    description: `
+    회원의 프로필 사진을 수정합니다.
+      - 세부사항:
+        - 프로필 이미지 3개까지 등록 가능
+        - 프로필 이미지 데이터는 MinIO에 저장 후 관리
+    `,
   })
   @ApiBody({
     description: '프로필 이미지 변경',
@@ -76,16 +106,6 @@ export class UserController {
             type: 'string',
             format: 'binary',
           },
-        },
-        address: {
-          type: 'string',
-          description: 'Address',
-          example: '서울시 강동구',
-        },
-        phone: {
-          type: 'string',
-          description: 'Phone Number',
-          example: '01022223333',
         },
       },
     },

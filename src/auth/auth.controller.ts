@@ -12,6 +12,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiCreatedResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -32,7 +33,7 @@ import { NaverGuard } from '@auth/guards/naver.guard';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { EmailValidationDto } from '@user/dto/email-validation.dto';
 
-@ApiTags('Auth')
+@ApiTags('인증 API')
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
@@ -43,9 +44,18 @@ export class AuthController {
 
   // 회원가입 API
   @Post('/signup')
-  @ApiOperation({ summary: '회원가입' })
+  @ApiOperation({
+    summary: '회원가입',
+    description: `
+    회원의 정보를 입력하여 DB에 저장합니다.
+      - 세부사항:
+        - 비밀번호는 최소 8자리, 최소 하나의 문자, 하나의 숫자 및 특수문자 포함
+    `,
+  })
   @ApiBody({ description: '회원가입 DTO', type: CreateUserDto })
-  // @ApiConsumes('application/x-www-form-urlencoded')
+  @ApiCreatedResponse({
+    description: '회원가입 완료',
+  })
   async signup(@Body() dto: CreateUserDto) {
     return await this.authService.signup(dto);
   }
@@ -53,7 +63,15 @@ export class AuthController {
   // 로그인 API
   @Post('/login')
   @UseGuards(LocalGuard)
-  @ApiOperation({ summary: '로그인' })
+  @ApiOperation({
+    summary: '로그인',
+    description: `
+    DB에 저장된 회원이 로그인 합니다.
+      - 세부사항:
+        - 로그인 성공 시, Access/Refresh Token이 쿠키에 저장
+        - Redis에 Refresh Token 저장
+    `,
+  })
   @ApiBody({ description: '로그인 DTO', type: LoginUserDto })
   @ApiConsumes('application/x-www-form-urlencoded')
   async login(@Req() req: RequestUserInterface, @Res() res: Response) {
@@ -75,7 +93,14 @@ export class AuthController {
 
   // 비밀번호 변경 이메일 보내기 API
   @Post('/find/password')
-  @ApiOperation({ summary: '비밀번호 변경 이메일 보내기' })
+  @ApiOperation({
+    summary: '비밀번호 변경 메일 전송',
+    description: `
+    비밀번호를 잊어버린 회원의 이메일에 비밀번호 변경 메일을 전송합니다.
+      - 세부사항:
+        - 메일에 비밀번호 변경 토큰을 URL에 추가
+    `,
+  })
   @ApiBody({ description: '이메일 DTO', type: EmailDto })
   @ApiConsumes('application/x-www-form-urlencoded')
   async findPassword(@Body() dto: EmailDto) {
@@ -84,7 +109,14 @@ export class AuthController {
 
   // 비밀번호 변경 API
   @Post('/update/password')
-  @ApiOperation({ summary: '비밀번호 변경' })
+  @ApiOperation({
+    summary: '비밀번호 변경',
+    description: `
+    회원의 이메일에 전송된 메일 URL에 있는 비밀번호 변경 토큰을 이용해 비밀번호 변경합니다.
+      - 세부사항:
+        - 메일 URL에 있는 토큰이 일치한 경우만 변경 가능
+    `,
+  })
   @ApiBody({ description: '비밀번호 변경 DTO', type: UpdatePasswordDto })
   @ApiConsumes('application/x-www-form-urlencoded')
   async updatePassword(@Body() dto: UpdatePasswordDto) {
@@ -94,12 +126,49 @@ export class AuthController {
     );
   }
 
+  // 인증 번호 발송 API
+  @Post('/email/send')
+  @ApiOperation({
+    summary: '인증번호 발송',
+    description: `
+    회원가입 시, 이메일 인증을 위한 인증번호를 발송합니다.
+      - 세부사항:
+        - 인증번호는 Redis에 회원의 이메일을 key값으로 저장
+    `,
+  })
+  @ApiBody({ description: '이메일 DTO', type: EmailDto })
+  @ApiConsumes('application/x-www-form-urlencoded')
+  async sendOTP(@Body() emailDto: EmailDto) {
+    return await this.authService.sendEmailOTP(emailDto.email);
+  }
+
+  // 인증 번호 확인 API
+  @Post('/email/check')
+  @ApiOperation({
+    summary: '인증번호 확인',
+    description: `
+    회원의 이메일로 발송된 인증번호와 입력한 인증번호가 일치하는지 확인합니다.
+      - 세부사항:
+        - Redis에 회원의 이메일로 저장된 인증번호가 일치하는지 확인
+    `,
+  })
+  @ApiConsumes('application/x-www-form-urlencoded')
+  async checkOTP(@Body() dto: EmailValidationDto) {
+    const { email, code } = dto;
+    return await this.authService.checkEmailOTP(email, code);
+  }
+
   // Refresh Token을 이용해 Access Token 갱신
   @Get('/refresh')
   @UseGuards(RefreshTokenGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Redis에 담긴 Refresh Token을 이용해 Access Token 갱신',
+    summary: 'Access Token 갱신',
+    description: `
+    Redis에 담긴 Refresh Token을 이용해 Access Token을 갱신합니다.
+      - 세부사항:
+        - 갱신된 Access Token은 쿠키에 저장
+    `,
   })
   async refresh(@Req() req: RequestUserInterface, @Res() res: Response) {
     const user = req.user;
@@ -114,7 +183,14 @@ export class AuthController {
   // Access Token 으로 유저 정보 찾는 API
   @Get()
   @UseGuards(AccessTokenGuard)
-  @ApiOperation({ summary: '유저 정보 찾기' })
+  @ApiOperation({
+    summary: '유저 정보 찾기',
+    description: `
+    로그인한 유저가 자신의 정보를 확인합니다.
+      - 세부사항:
+        - 로그인 시(Access Token을 보유할 시) 접근 가능
+    `,
+  })
   async findUserInfo(@Req() req: RequestUserInterface) {
     return req.user;
   }
@@ -195,22 +271,5 @@ export class AuthController {
     res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
 
     res.send({ user, accessToken });
-  }
-
-  // 인증 번호 발송 API
-  @Post('/email/send')
-  @ApiOperation({ summary: '인증번호 발송' })
-  @ApiBody({ description: 'email' })
-  async sendOTP(@Body('email') email: string) {
-    return await this.authService.sendEmailOTP(email);
-  }
-
-  // 인증 번호 확인 API
-  @Post('/email/check')
-  @ApiOperation({ summary: '인증번호 확인' })
-  @ApiConsumes('application/x-www-form-urlencoded')
-  async checkOTP(@Body() dto: EmailValidationDto) {
-    const { email, code } = dto;
-    return await this.authService.checkEmailOTP(email, code);
   }
 }

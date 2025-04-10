@@ -1,9 +1,11 @@
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Order } from '@common/constant/order.constant';
 import { Sort } from '@common/constant/sort.constant';
+import { Type } from 'class-transformer';
 
 export class PageOptionsDto {
+  @IsString()
   @IsOptional()
   @ApiPropertyOptional({ description: '검색어(이름)' })
   readonly keyword: string;
@@ -26,11 +28,18 @@ export class PageOptionsDto {
   })
   readonly sort?: Sort = Sort.CREATED_AT;
 
+  @IsNumber()
   @IsOptional()
-  @ApiPropertyOptional({ description: '현재 페이지', default: 1 })
+  @Type(() => Number)
+  @ApiPropertyOptional({
+    description: '현재 페이지',
+    default: 1,
+  })
   readonly page: number = 1;
 
+  @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   @ApiPropertyOptional({
     description: '페이지에서 보여지는 데이터 수',
     default: 10,

@@ -18,6 +18,6 @@ export class Term {
   @Column({ default: false })
   public agreeOfEvent?: boolean;
 
-  @OneToOne(() => User, (user) => user.term)
+  @OneToOne(() => User, (user: User) => user.term)
   public user: User;
 }

@@ -22,7 +22,11 @@ export class CreateCarDto {
 
   @IsEnum(Scale)
   @IsOptional()
-  @ApiPropertyOptional({ description: '자동차 분류', default: Scale.DEFAULT })
+  @ApiPropertyOptional({
+    description: '자동차 분류',
+    enum: Scale,
+    default: Scale.DEFAULT,
+  })
   scale?: Scale;
 
   @IsNumber()
@@ -53,15 +57,19 @@ export class CreateCarDto {
 
   @IsEnum(Fuel)
   @IsOptional()
-  @ApiPropertyOptional({ description: '자동차 연료', default: Fuel.DEFAULT })
+  @ApiPropertyOptional({
+    description: '자동차 연료',
+    enum: Fuel,
+    default: Fuel.DEFAULT,
+  })
   fuel?: Fuel;
 
-  @IsString({ each: true })
   @IsArray()
+  @IsString({ each: true })
   @IsOptional()
   @ApiPropertyOptional({
+    type: [String],
     description: '자동차 이미지',
-    example: ['car1.png', 'car1_2.jpg'],
   })
   carImgs?: string[];
 

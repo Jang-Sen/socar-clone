@@ -29,7 +29,7 @@ export class CreateProfileDto {
   @IsEnum(Gender)
   @ApiProperty({
     description: '성별',
-    example: Gender.MALE,
+    enum: Gender,
     default: Gender.DEFAULT,
   })
   gender: Gender;

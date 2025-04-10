@@ -15,9 +15,6 @@ export class Accommodation extends Base {
   public accommodationType: AccommodationType;
 
   @Column()
-  public reservatedAt: Date;
-
-  @Column()
   public price: number;
 
   @Column()

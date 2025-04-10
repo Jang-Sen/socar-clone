@@ -22,20 +22,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PageOptionsDto } from '@common/dto/page-options.dto';
-import { FindCarDto } from '@car/dto/find-car.dto';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { Role } from '@user/entities/role.enum';
 import { CreateCarDto } from '@car/dto/create-car.dto';
 import { UpdateCarDto } from '@car/dto/update-car.dto';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { Scale } from '@car/entities/scale.enum';
 import { Fuel } from '@car/entities/fuel.enum';
 import * as XLSX from 'xlsx';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 
-@ApiTags('Car')
+@ApiTags('차량 API')
 @Controller('car')
 export class CarController {
   private readonly logger = new Logger();
@@ -45,8 +43,14 @@ export class CarController {
   // 전체 찾기 API
   @Get('/findAll')
   @ApiOperation({
-    summary: '차량 전체 찾기',
-    description: '등록되어있는 차량 전체 검색(페이징)',
+    summary: '차량 전체 조회',
+    description: `
+    DB에 등록되어 있는 차량 목록을 조회합니다.
+      - 세부사항:
+        - 페이지네이션(Pagination) 지원 (예: 페이지당 10건)
+        - 자동차명으로 필터링할 수 있는 검색 기능 제공
+        - 정렬 기능 제공
+    `,
   })
   async findAll(@Query() pageOptionsDto: PageOptionsDto) {
     return await this.carService.findAll(pageOptionsDto);
@@ -55,37 +59,17 @@ export class CarController {
   // 차량 ID로 찾기 API
   @Get('/find/:id')
   @ApiOperation({
-    summary: 'ID로 차량 검색',
-    description: 'ID로 등록되어있는 차량을 검색',
+    summary: '특정 차량 조회',
+    description: `
+    DB에 등록되어 있는 차량의 ID로 차량을 조회합니다.
+    `,
   })
   @ApiParam({
     name: 'id',
     description: '차량 ID',
-    example: '123',
   })
   async findByCarId(@Param('id') id: string) {
     return await this.carService.findByCarId(id);
-  }
-
-  // 차량 연료 or 분류로 찾기 API -> 이게 맞는지 잘 모르겠음
-  @Get('/find/:dto')
-  @ApiOperation({
-    summary: '연료 or 분류로 차량 검색',
-  })
-  @ApiParam({
-    name: 'dto',
-    type: FindCarDto,
-    description: '차량의 연료 or 분류',
-    example: '하이브리드 | 중형',
-  })
-  async findBy(@Param('dto') dto: FindCarDto, key: string) {
-    if (key === 'scale') {
-      // 연료로 차량을 검색할 때
-      return await this.carService.findBy('scale', dto.scale);
-    } else if (key === 'fuel') {
-      // 분류로 검색할 때
-      return await this.carService.findBy('fuel', dto.fuel);
-    }
   }
 
   // 등록 API
@@ -94,44 +78,14 @@ export class CarController {
   @UseInterceptors(FilesInterceptor('carImgs'))
   @ApiOperation({
     summary: '차량 등록',
-    description: `${Role.ADMIN}만 이용가능`,
+    description: `
+    DB에 차량의 정보를 등록합니다.
+      - 세부사항:
+        - ${Role.ADMIN}만 접근 가능
+        - 자동차에 대한 이미지는 5개 까지 등록 가능
+    `,
   })
-  @ApiBody({
-    description: '차량 등록 DTO',
-    schema: {
-      type: 'object',
-      properties: {
-        carName: {
-          type: 'string',
-          description: '자동차 이름',
-          example: 'K5',
-        },
-        price: {
-          type: 'number',
-          description: '자동차 가격',
-          example: 23000,
-        },
-        scale: {
-          type: 'enum',
-          description: '자동차 분류',
-          example: Scale.DEFAULT,
-        },
-        fuel: {
-          type: 'enum',
-          description: '자동차 연료',
-          example: Fuel.DEFAULT,
-        },
-        carImgs: {
-          type: 'array',
-          description: '자동차 이미지',
-          items: {
-            type: 'string',
-            format: 'binary',
-          },
-        },
-      },
-    },
-  })
+  @ApiBody({ description: '차량 등록 DTO', type: CreateCarDto })
   @ApiConsumes('multipart/form-data')
   async create(
     @Body() dto: CreateCarDto,
@@ -140,73 +94,17 @@ export class CarController {
     return await this.carService.create(dto, carImgs);
   }
 
-  // 수정 API
-  @Put('/:id')
-  // @UseGuards(RoleGuard(Role.ADMIN))
-  @UseInterceptors(FilesInterceptor('carImgs'))
-  @ApiOperation({
-    summary: '차량 수정',
-    description: `ID로 등록되어있는 차량의 정보 수정, ${Role.ADMIN}만 이용가능`,
-  })
-  @ApiParam({
-    name: 'id',
-    description: '차량 ID',
-    example: '123',
-  })
-  @ApiBody({
-    description: '차량 수정 DTO',
-    schema: {
-      type: 'object',
-      properties: {
-        carName: {
-          type: 'string',
-          description: '자동차 이름',
-          example: 'K5',
-        },
-        price: {
-          type: 'number',
-          description: '자동차 가격',
-          example: 23000,
-        },
-        carImgs: {
-          type: 'array',
-          description: '자동차 이미지',
-          items: {
-            type: 'string',
-            format: 'binary',
-          },
-        },
-      },
-    },
-  })
-  @ApiConsumes('multipart/form-data')
-  async update(
-    @Param('id') id: string,
-    @Body() dto?: UpdateCarDto,
-    @UploadedFiles() carImgs?: BufferedFile[],
-  ) {
-    return await this.carService.update(id, dto, carImgs);
-  }
-
-  // 삭제 API
-  @Delete('/:id')
-  @UseGuards(RoleGuard(Role.ADMIN))
-  @ApiOperation({
-    summary: '차량 삭제',
-    description: `ID로 등록되어있는 차량을 삭제, ${Role.ADMIN}만 이용가능`,
-  })
-  @ApiParam({
-    name: 'id',
-    description: '차량 ID',
-    example: '123',
-  })
-  async delete(@Param('id') id: string) {
-    return await this.carService.delete(id);
-  }
-
   @Post()
+  // @UseGuards(RoleGuard(Role.ADMIN))
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: '엑셀 파일 업로드를 통해 등록 API' })
+  @ApiOperation({
+    summary: '엑셀 파일 업로드를 통한 등록',
+    description: `
+    엑셀 파일을 업로드하여 DB에 차량의 정보를 등록합니다.
+      - 세부사항:
+        - ${Role.ADMIN}만 접근 가능
+    `,
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -258,5 +156,54 @@ export class CarController {
     );
 
     return { totalRows, processed, skippedRows };
+  }
+
+  // 수정 API
+  @Put('/:id')
+  // @UseGuards(RoleGuard(Role.ADMIN))
+  @UseInterceptors(FilesInterceptor('carImgs'))
+  @ApiOperation({
+    summary: '차량 수정',
+    description: `
+    DB에 저장된 차량의 ID로 등록되어있는 차량의 정보를 수정합니다.
+      - 세부사항:
+        - ${Role.ADMIN}만 접근 가능
+        - 자동차에 대한 이미지는 5개 까지 등록 가능
+    `,
+  })
+  @ApiParam({
+    name: 'id',
+    description: '차량 ID',
+  })
+  @ApiBody({
+    description: '차량 수정 DTO',
+    type: CreateCarDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  async update(
+    @Param('id') id: string,
+    @Body() dto?: UpdateCarDto,
+    @UploadedFiles() carImgs?: BufferedFile[],
+  ) {
+    return await this.carService.update(id, dto, carImgs);
+  }
+
+  // 삭제 API
+  @Delete('/:id')
+  @UseGuards(RoleGuard(Role.ADMIN))
+  @ApiOperation({
+    summary: '차량 삭제',
+    description: `
+    DB에 저장된 차량의 ID로 등록되어있는 차량의 정보를 삭제합니다.
+      - 세부사항:
+        - ${Role.ADMIN}만 접근 가능
+    `,
+  })
+  @ApiParam({
+    name: 'id',
+    description: '차량 ID',
+  })
+  async delete(@Param('id') id: string) {
+    return await this.carService.delete(id);
   }
 }

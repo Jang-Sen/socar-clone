@@ -6,8 +6,8 @@ import {
   IsString,
 } from 'class-validator';
 import { AccommodationType } from '@accommodation/entities/accommodation-type.enum';
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateAccommodationDto {
   @IsString()
@@ -19,21 +19,20 @@ export class CreateAccommodationDto {
   area: string;
 
   @IsEnum(AccommodationType)
-  @ApiProperty({ description: '종류', example: AccommodationType.PENSION })
+  @ApiProperty({
+    description: '종류',
+    enum: AccommodationType,
+    example: AccommodationType.PENSION,
+  })
   accommodationType: AccommodationType;
 
-  // @IsDate()
-  // @Type(() => Date)
-  // @ApiProperty({ description: '예약 날짜' })
-  // reservatedAt?: Date;
-
-  @IsNumber()
   @Type(() => Number)
+  @IsNumber()
   @ApiProperty({ description: '가격', example: 75000 })
   price: number;
 
-  @IsNumber()
   @Type(() => Number)
+  @IsNumber()
   @ApiProperty({ description: '인원', example: 2 })
   personnel: number;
 
@@ -45,11 +44,16 @@ export class CreateAccommodationDto {
   })
   information: string;
 
-  @IsString({ each: true })
   @IsArray()
+  @IsString({ each: true })
   @IsOptional()
-  @ApiProperty({
-    description: '숙소 이미지(10개 이하)',
+  @Transform(({ value }) => {
+    if (value === '' || value === null) return undefined;
   })
-  accommodationImgs: string[];
+  @ApiPropertyOptional({
+    type: [String],
+    description: '숙소 이미지(10개 이하)',
+    default: null,
+  })
+  accommodationImgs?: string[];
 }
