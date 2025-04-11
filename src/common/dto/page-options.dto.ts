@@ -28,18 +28,18 @@ export class PageOptionsDto {
   })
   readonly sort?: Sort = Sort.CREATED_AT;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
-  @Type(() => Number)
   @ApiPropertyOptional({
     description: '현재 페이지',
     default: 1,
   })
   readonly page: number = 1;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
-  @Type(() => Number)
   @ApiPropertyOptional({
     description: '페이지에서 보여지는 데이터 수',
     default: 10,

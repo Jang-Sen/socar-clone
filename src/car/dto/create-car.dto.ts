@@ -29,6 +29,7 @@ export class CreateCarDto {
   })
   scale?: Scale;
 
+  @Type(() => Number)
   @IsNumber()
   @IsOptional()
   @ApiPropertyOptional({ description: '연식' })
@@ -38,8 +39,8 @@ export class CreateCarDto {
   @ApiProperty({ description: '차량번호' })
   carNo: string;
 
-  @IsNumber()
   @Type(() => Number)
+  @IsNumber()
   @ApiProperty({ description: '가격', example: 23000 })
   price: number;
 
@@ -47,10 +48,12 @@ export class CreateCarDto {
   @ApiProperty({ description: '변속기' })
   transmission: string;
 
+  @Type(() => Number)
   @IsNumber()
   @ApiProperty({ description: '주행거리' })
   mileage: number;
 
+  @Type(() => Number)
   @IsNumber()
   @ApiProperty({ description: '배기량' })
   displacement: number;
