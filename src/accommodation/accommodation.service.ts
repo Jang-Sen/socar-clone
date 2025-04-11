@@ -1,6 +1,7 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -14,6 +15,11 @@ import { BufferedFile } from '@minio-client/interface/file.model';
 import { PageDto } from '@common/dto/page.dto';
 import { PageOptionsDto } from '@common/dto/page-options.dto';
 import { PageMetaDto } from '@common/dto/page-meta.dto';
+import { SortValue } from '@common/constant/sort.constant';
+import { CACHE_MANAGER } from '@nestjs/common/cache';
+import { Cache } from 'cache-manager';
+import { REDIS_CLIENT } from '@redis/redis.module';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AccommodationService {
@@ -21,33 +27,53 @@ export class AccommodationService {
     @InjectRepository(Accommodation)
     private readonly repository: Repository<Accommodation>,
     private readonly minioClientService: MinioClientService,
+    @Inject(CACHE_MANAGER)
+    private readonly cache: Cache,
+    @Inject(REDIS_CLIENT)
+    private readonly redisClient: Redis,
   ) {}
 
   // 전체 조회
   async findAll(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<Accommodation>> {
-    // return await this.repository.find();
+    const redisKey = `accommodations:${JSON.stringify(pageOptionsDto)}`;
+    const redisData: string = await this.cache.get(redisKey);
+
     const queryBuilder = this.repository.createQueryBuilder('accommodation');
 
     if (pageOptionsDto.keyword) {
       queryBuilder.andWhere('accommodation.name LIKE :keyword', {
-        keyword: `${pageOptionsDto.keyword}`,
+        keyword: `%${pageOptionsDto.keyword}%`,
       });
     }
 
+    const sortOption = SortValue[pageOptionsDto.sort];
+
     queryBuilder
-      .leftJoinAndSelect('accommodation.comments', 'comment')
-      .addOrderBy(`accommodation.${pageOptionsDto.sort}`, pageOptionsDto.order)
+      .addOrderBy(`accommodation.${sortOption.column}`, sortOption.order)
       .take(pageOptionsDto.take)
       .skip(pageOptionsDto.skip);
 
     const itemCount = await queryBuilder.getCount();
+
+    if (itemCount === 0) {
+      throw new NotFoundException('등록된 숙소가 존재하지 않습니다.');
+    }
+
+    if (redisData) {
+      return JSON.parse(redisData);
+    }
+
     const { entities } = await queryBuilder.getRawAndEntities();
 
     const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
 
-    return new PageDto(entities, pageMetaDto);
+    const result = new PageDto(entities, pageMetaDto);
+
+    await this.cache.set(redisKey, JSON.stringify(result));
+
+    return result;
   }
 
   // 상세 조회
@@ -78,6 +104,8 @@ export class AccommodationService {
 
       await this.repository.save(savedAd);
 
+      await this.clearAccommodationCache();
+
       return accommodation;
     } catch (e) {
       throw new HttpException(
@@ -103,6 +131,8 @@ export class AccommodationService {
       throw new NotFoundException('삭제할 숙소의 ID가 아닙니다.');
     }
 
+    await this.clearAccommodationCache();
+
     return '삭제 완료';
   }
 
@@ -127,6 +157,16 @@ export class AccommodationService {
       throw new NotFoundException('숙소의 정보를 수정할 수 없습니다.');
     }
 
+    await this.clearAccommodationCache();
+
     return '수정 완료';
+  }
+
+  private async clearAccommodationCache() {
+    const keys = await this.redisClient.keys('accommodations:*');
+
+    if (keys.length > 0) {
+      await this.redisClient.del(...keys);
+    }
   }
 }
