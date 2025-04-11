@@ -15,14 +15,14 @@ export class ProfileService {
 
   // 프로필 생성 로직
   async createProfile(user: User, dto: CreateProfileDto): Promise<Profile> {
-    const profile = this.repository.create({ id: user.id, ...dto });
+    const profile = this.repository.create({ user, ...dto });
 
     return await this.repository.save(profile);
   }
 
   // 프로필 수정 로직
   async updateProfile(user: User, dto: UpdateProfileDto): Promise<string> {
-    const result = await this.repository.update(user.id, dto);
+    const result = await this.repository.update(user.profile.id, dto);
 
     if (!result.affected) {
       throw new BadRequestException('Fail Updated Profile.');
