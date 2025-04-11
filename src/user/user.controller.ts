@@ -46,7 +46,7 @@ export class UserController {
       - ${Role.ADMIN}만 접근 가능
       - 페이지네이션(Pagination) 지원 (예: 페이지당 10건)
       - 이름으로 필터링할 수 있는 검색 기능 제공
-      - 정렬 기능 제공
+      - 정렬 기능 제공 (최근 등록순만 제공)
     `,
   })
   @ApiOkResponse({

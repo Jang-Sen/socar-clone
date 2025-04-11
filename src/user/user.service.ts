@@ -61,10 +61,7 @@ export class UserService {
     }
 
     queryBuilder
-      .leftJoinAndSelect('user.comments', 'comment')
-      .leftJoinAndSelect('user.term', 'term')
-      .leftJoinAndSelect('user.reserves', 'reserve')
-      .orderBy('user.createdAt', pageOptionsDto.order)
+      .orderBy('user.createdAt', 'DESC')
       .take(pageOptionsDto.take)
       .skip(pageOptionsDto.skip);
 
@@ -79,6 +76,7 @@ export class UserService {
   // ID or Email로 유저 찾기 로직
   async findBy(key: 'id' | 'email', value: string) {
     const user = await this.repository.findOneBy({ [key]: value });
+
     if (!user) {
       throw new NotFoundException(`존재하지 않는 ${key} 입니다.`);
     }

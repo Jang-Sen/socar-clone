@@ -185,7 +185,7 @@ export class AuthService {
   }
 
   // 인증번호 생성 함수
-  generateOTP() {
+  private generateOTP() {
     let otp = '';
 
     for (let i = 1; i <= 6; i++) {
