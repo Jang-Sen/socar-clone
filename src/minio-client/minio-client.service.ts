@@ -35,7 +35,7 @@ export class MinioClientService {
 
     if (files.length > 10) {
       throw new HttpException(
-        '10개 이상의 사진은 첨부할 수 없습니다.',
+        '숙소에 대한 이미지는 최대 10개까지 가능합니다.',
         HttpStatus.BAD_REQUEST,
       );
     } else {
@@ -207,7 +207,10 @@ export class MinioClientService {
     }
 
     if (files.length > 3) {
-      throw new HttpException('3개까지만 허용', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        '프로필 이미지는 3개까지만 허용합니다.',
+        HttpStatus.BAD_REQUEST,
+      );
     } else {
       for (const file of files) {
         if (
