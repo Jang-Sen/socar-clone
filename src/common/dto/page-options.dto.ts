@@ -1,32 +1,29 @@
-import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Order } from '@common/constant/order.constant';
 import { Sort } from '@common/constant/sort.constant';
 import { Type } from 'class-transformer';
 
 export class PageOptionsDto {
   @IsString()
   @IsOptional()
-  @ApiPropertyOptional({ description: '검색어(이름)' })
+  @MinLength(2, { message: '두글자 이상 입력해주세요.' })
+  @ApiPropertyOptional({ description: '검색어 (이름)' })
   readonly keyword: string;
-
-  @IsEnum(Order)
-  @IsOptional()
-  @ApiPropertyOptional({
-    description: '차순(기본 내림차순)',
-    enum: Order,
-    default: Order.ASC,
-  })
-  readonly order?: Order = Order.DESC;
 
   @IsEnum(Sort)
   @IsOptional()
   @ApiPropertyOptional({
-    description: '정렬 기준(기본 생성일자)',
+    description: '정렬 기준 (기본: 최근 등록순)',
     enum: Sort,
-    default: Sort.CREATED_AT,
+    default: Sort.LAST_CREATED,
   })
-  readonly sort?: Sort = Sort.CREATED_AT;
+  readonly sort?: Sort = Sort.LAST_CREATED;
 
   @Type(() => Number)
   @IsNumber()
