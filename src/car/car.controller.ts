@@ -48,8 +48,10 @@ export class CarController {
     DB에 등록되어 있는 차량 목록을 조회합니다.
       - 세부사항:
         - 페이지네이션(Pagination) 지원 (예: 페이지당 10건)
-        - 자동차명으로 필터링할 수 있는 검색 기능 제공
-        - 정렬 기능 제공
+        - 차량명으로 필터링할 수 있는 검색 기능 제공 (두글자 이상 입력)
+        - 정렬 기능 제공 (예: 최근 등록순)
+        - Redis에 차량 조회 데이터 저장 (TTL: 600)
+        - 조회 데이터가 Redis에 저장된 데이터와 일치할 경우, Redis에 저장되어 있는 차량 데이터로 조회 (캐싱)
     `,
   })
   async findAll(@Query() pageOptionsDto: PageOptionsDto) {
@@ -82,14 +84,15 @@ export class CarController {
     DB에 차량의 정보를 등록합니다.
       - 세부사항:
         - ${Role.ADMIN}만 접근 가능
-        - 자동차에 대한 이미지는 5개 까지 등록 가능
+        - 차량에 대한 이미지는 5개 까지 등록 가능
+        - Redis에 저장되어있는 차량 조회 데이터 삭제 (데이터 일관성 보장)
     `,
   })
   @ApiBody({ description: '차량 등록 DTO', type: CreateCarDto })
   @ApiConsumes('multipart/form-data')
   async create(
     @Body() dto: CreateCarDto,
-    @UploadedFiles() carImgs: BufferedFile[],
+    @UploadedFiles() carImgs?: BufferedFile[],
   ) {
     return await this.carService.create(dto, carImgs);
   }
@@ -103,6 +106,7 @@ export class CarController {
     엑셀 파일을 업로드하여 DB에 차량의 정보를 등록합니다.
       - 세부사항:
         - ${Role.ADMIN}만 접근 가능
+        - Redis에 저장되어있는 차량 조회 데이터 삭제 (데이터 일관성 보장)
     `,
   })
   @ApiConsumes('multipart/form-data')
@@ -168,7 +172,8 @@ export class CarController {
     DB에 저장된 차량의 ID로 등록되어있는 차량의 정보를 수정합니다.
       - 세부사항:
         - ${Role.ADMIN}만 접근 가능
-        - 자동차에 대한 이미지는 5개 까지 등록 가능
+        - 차량에 대한 이미지는 5개 까지 등록 가능
+        - Redis에 저장되어있는 차량 조회 데이터 삭제 (데이터 일관성 보장)
     `,
   })
   @ApiParam({
@@ -197,6 +202,7 @@ export class CarController {
     DB에 저장된 차량의 ID로 등록되어있는 차량의 정보를 삭제합니다.
       - 세부사항:
         - ${Role.ADMIN}만 접근 가능
+        - Redis에 저장되어있는 차량 조회 데이터 삭제 (데이터 일관성 보장)
     `,
   })
   @ApiParam({

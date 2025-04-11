@@ -8,7 +8,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Scale } from '../entities/scale.enum';
 import { Fuel } from '../entities/fuel.enum';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export class CreateCarDto {
   @IsString()
@@ -23,7 +23,7 @@ export class CreateCarDto {
   @IsEnum(Scale)
   @IsOptional()
   @ApiPropertyOptional({
-    description: '자동차 분류',
+    description: '차량 분류',
     enum: Scale,
     default: Scale.DEFAULT,
   })
@@ -61,7 +61,7 @@ export class CreateCarDto {
   @IsEnum(Fuel)
   @IsOptional()
   @ApiPropertyOptional({
-    description: '자동차 연료',
+    description: '차량 연료',
     enum: Fuel,
     default: Fuel.DEFAULT,
   })
@@ -70,9 +70,13 @@ export class CreateCarDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === '' || value === null) return undefined;
+  })
   @ApiPropertyOptional({
     type: [String],
-    description: '자동차 이미지',
+    description: '차량 이미지',
+    default: null,
   })
   carImgs?: string[];
 

@@ -11,6 +11,9 @@ import { BufferedFile } from '@minio-client/interface/file.model';
 import { MinioClientService } from '@minio-client/minio-client.service';
 import { CACHE_MANAGER } from '@nestjs/common/cache';
 import { Cache } from 'cache-manager';
+import { REDIS_CLIENT } from '@redis/redis.module';
+import Redis from 'ioredis';
+import { SortValue } from '@common/constant/sort.constant';
 
 @Injectable()
 export class CarService {
@@ -22,52 +25,68 @@ export class CarService {
     private readonly minioClientService: MinioClientService,
     @Inject(CACHE_MANAGER)
     private readonly cache: Cache,
+    @Inject(REDIS_CLIENT)
+    private readonly redisClient: Redis,
   ) {}
 
   // 전체 찾기 로직
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Car>> {
-    // return await this.repository.find();
-    const redisCar: any = await this.cache.get('car');
+    const redisKey: string = `cars:${JSON.stringify(pageOptionsDto)}`;
+    const redisData: string = await this.cache.get(redisKey);
 
     const queryBuilder = this.repository.createQueryBuilder('car');
 
     if (pageOptionsDto.keyword) {
       queryBuilder.andWhere('car.carName LIKE :carName', {
         carName: `%${pageOptionsDto.keyword}%`,
-        // keyword: pageOptionsDto.keyword,
       });
     }
 
+    const sortOption = SortValue[pageOptionsDto.sort];
+
     queryBuilder
-      .leftJoinAndSelect('car.comments', 'comment')
-      .orderBy(`car.${pageOptionsDto.sort}`, pageOptionsDto.order)
+      .orderBy(`car.${sortOption.column}`, sortOption.order)
       .take(pageOptionsDto.take)
       .skip(pageOptionsDto.skip);
 
     const itemCount = await queryBuilder.getCount();
+
+    if (itemCount === 0) {
+      throw new NotFoundException('등록된 차량이 존재하지 않습니다.');
+    }
+
+    if (redisData) {
+      return JSON.parse(redisData);
+    }
+
     const { entities } = await queryBuilder.getRawAndEntities();
 
     const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
 
-    // if (redisCar) {
-    //   console.log('Redis에 저장된 데이터 조회');
-    //   return new PageDto(redisCar, pageMetaDto);
-    // } else {
-    //   console.log('DB에 있는 데이터 조회(Redis에 데이터 저장)');
-    //   await this.cache.set('car', entities);
-    return new PageDto(entities, pageMetaDto);
-    // }
+    const result = new PageDto(entities, pageMetaDto);
+
+    await this.cache.set(redisKey, JSON.stringify(result));
+
+    return result;
   }
 
   // ID에 맞는 차량 찾기 로직
-  async findByCarId(id: string) {
-    const result = await this.repository.findOneBy({ id });
+  async findByCarId(id: string): Promise<Car> {
+    const car = await this.repository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        comments: true,
+        reserves: true,
+      },
+    });
 
-    if (!result) {
+    if (!car) {
       throw new NotFoundException('등록된 차량이 없습니다.');
     }
 
-    return result;
+    return car;
   }
 
   // 차량 연료 or 분류로 찾는 로직 -> 맞는지 의문
@@ -82,7 +101,7 @@ export class CarService {
   }
 
   // 생성 로직
-  async create(dto: CreateCarDto, carImgs: BufferedFile[]) {
+  async create(dto: CreateCarDto, carImgs?: BufferedFile[]) {
     const result = this.repository.create(dto);
     const savedCar = await this.repository.save(result);
 
@@ -96,7 +115,7 @@ export class CarService {
 
     await this.repository.save(savedCar);
 
-    await this.cache.del('car');
+    await this.clearCarCache();
 
     return result;
   }
@@ -121,6 +140,8 @@ export class CarService {
       throw new NotFoundException('등록된 차량이 없습니다.');
     }
 
+    await this.clearCarCache();
+
     return '수정 완료';
   }
 
@@ -132,6 +153,8 @@ export class CarService {
       throw new NotFoundException('등록된 차량이 없습니다.');
     }
 
+    await this.clearCarCache();
+
     return '삭제 완료';
   }
 
@@ -139,7 +162,7 @@ export class CarService {
   async insertExcel(cars: Partial<Car>[]): Promise<number> {
     if (cars.length === 0) return 0;
 
-    // 이미 존재하는 자동차 번호 조회
+    // 이미 존재하는 차량 번호 조회
     const existings = await this.repository.find({
       where: cars.map((car) => ({
         carNo: car.carNo,
@@ -170,6 +193,17 @@ export class CarService {
       await this.repository.update(id, data);
     }
 
+    await this.clearCarCache();
+
     return toInsert.length + toUpdate.length;
+  }
+
+  // Redis에 저장된 차량 데이터 삭제
+  private async clearCarCache() {
+    const keys = await this.redisClient.keys('cars:*');
+
+    if (keys.length > 0) {
+      await this.redisClient.del(...keys);
+    }
   }
 }
