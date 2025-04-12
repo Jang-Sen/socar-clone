@@ -36,9 +36,27 @@ export class CarService {
 
     const queryBuilder = this.repository.createQueryBuilder('car');
 
-    if (pageOptionsDto.keyword) {
+    if (pageOptionsDto.modelName) {
       queryBuilder.andWhere('car.carName LIKE :carName', {
-        carName: `%${pageOptionsDto.keyword}%`,
+        carName: `%${pageOptionsDto.modelName}%`,
+      });
+    }
+
+    if (pageOptionsDto.grade) {
+      queryBuilder.andWhere('car.grade LIKE :grade', {
+        grade: `%${pageOptionsDto.grade}%`,
+      });
+    }
+
+    if (pageOptionsDto.fuel) {
+      queryBuilder.andWhere('car.fuel = :fuel', {
+        fuel: pageOptionsDto.fuel,
+      });
+    }
+
+    if (pageOptionsDto.carYear) {
+      queryBuilder.andWhere('car.carYear = :carYear', {
+        carYear: pageOptionsDto.carYear,
       });
     }
 

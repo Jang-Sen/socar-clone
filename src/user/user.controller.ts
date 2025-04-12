@@ -39,7 +39,7 @@ export class UserController {
   @Get('/all')
   @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
-    summary: '전체 회원 조회',
+    summary: `전체 회원 조회 - ${Role.ADMIN}`,
     description: `
     DB에 저장된 회원 목록을 조회합니다.
      - 세부사항:
@@ -64,7 +64,7 @@ export class UserController {
   @Get('/:id')
   @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
-    summary: '특정 회원 조회',
+    summary: `특정 회원 조회 - ${Role.ADMIN}`,
     description: `
     DB에 저장된 회원 중 특정 회원의 ID를 이용하여 조회합니다.
       - 세부사항:

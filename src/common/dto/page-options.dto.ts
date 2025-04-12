@@ -8,14 +8,32 @@ import {
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Sort } from '@common/constant/sort.constant';
 import { Type } from 'class-transformer';
+import { Fuel } from '@car/entities/fuel.enum';
 
 export class PageOptionsDto {
   @IsString()
   @IsOptional()
   @MinLength(2, { message: '두글자 이상 입력해주세요.' })
-  @ApiPropertyOptional({ description: '검색어 (이름)' })
-  readonly keyword: string;
+  @ApiPropertyOptional({ description: '검색어 (모델명)' })
+  readonly modelName?: string;
 
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({ description: '등급' })
+  readonly grade?: string;
+
+  @IsEnum(Fuel)
+  @IsOptional()
+  @ApiPropertyOptional({ description: '연료', enum: Fuel })
+  readonly fuel?: Fuel;
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @ApiPropertyOptional({ description: '연식' })
+  readonly carYear?: number;
+
+  @IsString()
   @IsEnum(Sort)
   @IsOptional()
   @ApiPropertyOptional({

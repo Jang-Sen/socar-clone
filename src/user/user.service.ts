@@ -51,12 +51,11 @@ export class UserService {
 
   // 전체 유저 찾기 로직
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<User>> {
-    // return await this.repository.find();
     const queryBuilder = this.repository.createQueryBuilder('user');
 
-    if (pageOptionsDto.keyword) {
+    if (pageOptionsDto.modelName) {
       queryBuilder.andWhere('user.username = :username', {
-        username: pageOptionsDto.keyword,
+        username: pageOptionsDto.modelName,
       });
     }
 
@@ -66,6 +65,11 @@ export class UserService {
       .skip(pageOptionsDto.skip);
 
     const itemCount = await queryBuilder.getCount();
+
+    if (itemCount === 0) {
+      throw new NotFoundException('회원이 존재하지 않습니다.');
+    }
+
     const { entities } = await queryBuilder.getRawAndEntities();
 
     const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
@@ -142,7 +146,7 @@ export class UserService {
     }
   }
 
-  // 유저 프로필 변경
+  // 유저 프로필 사진 변경
   async updateProfileByToken(
     user: User,
     dto?: UpdateUserDto,
@@ -160,6 +164,6 @@ export class UserService {
       throw new NotFoundException('회원을 찾을 수 없습니다.');
     }
 
-    return '업데이트 완료';
+    return '프로필 사진 수정 완료';
   }
 }

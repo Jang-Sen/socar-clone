@@ -42,9 +42,9 @@ export class AccommodationService {
 
     const queryBuilder = this.repository.createQueryBuilder('accommodation');
 
-    if (pageOptionsDto.keyword) {
+    if (pageOptionsDto.modelName) {
       queryBuilder.andWhere('accommodation.name LIKE :keyword', {
-        keyword: `%${pageOptionsDto.keyword}%`,
+        keyword: `%${pageOptionsDto.modelName}%`,
       });
     }
 

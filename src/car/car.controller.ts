@@ -79,7 +79,7 @@ export class CarController {
   @UseGuards(RoleGuard(Role.ADMIN))
   @UseInterceptors(FilesInterceptor('carImgs'))
   @ApiOperation({
-    summary: '차량 등록',
+    summary: `차량 등록 - ${Role.ADMIN}`,
     description: `
     DB에 차량의 정보를 등록합니다.
       - 세부사항:
@@ -98,10 +98,10 @@ export class CarController {
   }
 
   @Post()
-  // @UseGuards(RoleGuard(Role.ADMIN))
+  @UseGuards(RoleGuard(Role.ADMIN))
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({
-    summary: '엑셀 파일 업로드를 통한 등록',
+    summary: `엑셀 파일 업로드를 통한 등록 - ${Role.ADMIN}`,
     description: `
     엑셀 파일을 업로드하여 DB에 차량의 정보를 등록합니다.
       - 세부사항:
@@ -164,10 +164,10 @@ export class CarController {
 
   // 수정 API
   @Put('/:id')
-  // @UseGuards(RoleGuard(Role.ADMIN))
+  @UseGuards(RoleGuard(Role.ADMIN))
   @UseInterceptors(FilesInterceptor('carImgs'))
   @ApiOperation({
-    summary: '차량 수정',
+    summary: `차량 수정 - ${Role.ADMIN}`,
     description: `
     DB에 저장된 차량의 ID로 등록되어있는 차량의 정보를 수정합니다.
       - 세부사항:
@@ -197,7 +197,7 @@ export class CarController {
   @Delete('/:id')
   @UseGuards(RoleGuard(Role.ADMIN))
   @ApiOperation({
-    summary: '차량 삭제',
+    summary: `차량 삭제 - ${Role.ADMIN}`,
     description: `
     DB에 저장된 차량의 ID로 등록되어있는 차량의 정보를 삭제합니다.
       - 세부사항:
