@@ -21,12 +21,14 @@ import { ProfileModule } from './profile/profile.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
+
       validationSchema: Joi.object({
         POSTGRES_HOST: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
-        POSTGRES_DB: Joi.string().required(),
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
+        POSTGRES_DB: Joi.string().required(),
 
         REDIS_HOST: Joi.string().required(),
         REDIS_PORT: Joi.number().required(),
@@ -34,7 +36,7 @@ import { ProfileModule } from './profile/profile.module';
 
         MINIO_ENDPOINT: Joi.string().required(),
         MINIO_PORT: Joi.number().required(),
-        MINIO_EXTERNAL_PORT: Joi.number().required(),
+        MINIO_CONSOLE_PORT: Joi.number().required(),
         MINIO_ROOT_USER: Joi.string().required(),
         MINIO_ROOT_PASSWORD: Joi.string().required(),
         MINIO_BUCKET: Joi.string().required(),
@@ -65,7 +67,6 @@ import { ProfileModule } from './profile/profile.module';
         NAVER_CLIENT_SECRET: Joi.string().required(),
         NAVER_CALLBACK_URL: Joi.string().required(),
       }),
-      envFilePath: '../../.env',
     }),
     ThrottlerModule.forRoot([
       {

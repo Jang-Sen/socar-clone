@@ -278,13 +278,12 @@ export class MinioClientService {
 
   // 파일 업로드 url
   private getUploadUrl(filePath: string): string {
-    // const minioEndpointKey = `MINIO_ENDPOINT_${this.configService.get('MINIO_INSTANCE_NUMBER')}`;
     // const endPoint = this.configService.get('MINIO_ENDPOINT');
     // const port = this.configService.get('MINIO_PORT');
     const bucket = this.configService.get('MINIO_BUCKET');
-    const port = this.configService.get('MINIO_EXTERNAL_PORT');
+    // const port = this.configService.get('MINIO_EXTERNAL_PORT');
 
-    return `http://localhost:${port}/${bucket}/${filePath}`;
+    return `http://localhost:9011/${bucket}/${filePath}`;
   }
 
   //  파일 서버에 수정한 파일만 남겨두고 기존 파일 삭제
