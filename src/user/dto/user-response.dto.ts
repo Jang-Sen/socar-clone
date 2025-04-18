@@ -1,12 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Provider } from '@user/entities/provider.enum';
 import { Role } from '@user/entities/role.enum';
-import { Comment } from '@comment/entities/comment.entity';
 import { Term } from '@term/entities/term.entity';
-import { Reserve } from '@root/reserve/entities/reserve.entity';
 import { CreateCommentDto } from '@comment/dto/create-comment.dto';
 import { CreateTermDto } from '@term/dto/create-term.dto';
 import { CreateReserveDto } from '@root/reserve/dto/create-reserve.dto';
+import { Reserve } from '@root/reserve/entities/reserve.entity';
+import { Comment } from '@comment/entities/comment.entity';
+import { CreateUserDto } from '@user/dto/create-user.dto';
 
 class Meta {
   @ApiProperty()
@@ -83,4 +84,15 @@ export class FindAllUsersResponseDto {
 
   @ApiProperty({ type: FindAllUsersBodyDto })
   body: FindAllUsersBodyDto;
+}
+
+export class CreateUserResponseDto {
+  @ApiProperty({ example: 201 })
+  statusCode: number;
+
+  @ApiProperty({ example: 'success' })
+  message: string;
+
+  @ApiProperty({ type: CreateUserDto })
+  user: User;
 }

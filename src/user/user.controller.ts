@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Post,
   Put,
   Query,
   Req,
@@ -14,6 +15,7 @@ import { UserService } from './user.service';
 import {
   ApiBody,
   ApiConsumes,
+  ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -28,7 +30,11 @@ import { UpdateUserDto } from '@user/dto/update-user.dto';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { PageOptionsDto } from '@common/dto/page-options.dto';
-import { FindAllUsersResponseDto } from '@user/dto/user-response.dto';
+import {
+  CreateUserResponseDto,
+  FindAllUsersResponseDto,
+} from '@user/dto/user-response.dto';
+import { CreateUserDto } from '@user/dto/create-user.dto';
 
 @ApiTags('유저 API')
 @Controller('user')
@@ -117,5 +123,32 @@ export class UserController {
     @UploadedFiles() img?: BufferedFile[],
   ) {
     return await this.userService.updateProfileByToken(req.user, dto, img);
+  }
+
+  @Post('create')
+  @UseGuards(RoleGuard(Role.ADMIN))
+  @UseInterceptors(FilesInterceptor('profileImg'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: `회원 생성 - ${Role.ADMIN}`,
+    description: `
+    회원을 생성합니다.
+      - 세부사항
+        - ${Role.ADMIN}만 접근 가능
+        - 회원 이미지는 3개 까지 등록 가능
+    `,
+  })
+  @ApiCreatedResponse({
+    description: '생성 완료',
+    type: CreateUserResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: `${Role.ADMIN}만 접근 가능`,
+  })
+  async createUserFromAdmin(
+    @Body() dto: CreateUserDto,
+    @UploadedFiles() profileImg?: BufferedFile[],
+  ) {
+    return await this.userService.createUserFromAdmin(dto, profileImg);
   }
 }

@@ -5,7 +5,7 @@ import { Fuel } from '@car/entities/fuel.enum';
 import { Comment } from '@comment/entities/comment.entity';
 import { Reserve } from '@root/reserve/entities/reserve.entity';
 
-@Index(['carName', 'grade', 'fuel', 'carYear'], { unique: true })
+@Index(['carName', 'grade', 'fuel', 'carYear'])
 @Entity()
 export class Car extends Base {
   @Column()

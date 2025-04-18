@@ -1,5 +1,4 @@
 import {
-  IsArray,
   IsEmail,
   IsEnum,
   IsOptional,
@@ -10,8 +9,6 @@ import {
 import { Provider } from '../entities/provider.enum';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CreateTermDto } from '@term/dto/create-term.dto';
-import { Term } from '@term/entities/term.entity';
-import { Profile } from '@root/profile/entities/profile.entity';
 import { CreateProfileDto } from '@root/profile/dto/create-profile.dto';
 import { Transform } from 'class-transformer';
 
@@ -36,11 +33,21 @@ export class CreateUserDto {
   username: string;
 
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    }
+    return value;
+  })
   @ApiPropertyOptional({
     description: '유저 프로필',
     type: CreateProfileDto,
   })
-  profile?: Profile;
+  profile?: CreateProfileDto;
 
   @IsEnum(Provider)
   @IsOptional()
@@ -51,20 +58,29 @@ export class CreateUserDto {
   })
   provider?: Provider;
 
-  @IsArray()
-  @IsString({ each: true })
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === '' || value === null) return undefined;
-  })
   @ApiPropertyOptional({
-    type: [String],
-    description: '프로필 이미지',
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
+    description: '프로필 이미지(3개 까지 가능)',
     default: null,
   })
-  profileImg?: string[];
+  profileImg?: any;
 
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch {
+        return undefined;
+      }
+    }
+    return value;
+  })
   @ApiPropertyOptional({ description: '이용약관', type: CreateTermDto })
-  term?: Term;
+  term?: CreateTermDto;
 }

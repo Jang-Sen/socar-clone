@@ -9,10 +9,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -52,9 +55,9 @@ export class AuthController {
         - 비밀번호는 최소 8자리, 최소 하나의 문자, 하나의 숫자 및 특수문자 포함
     `,
   })
-  @ApiBody({ description: '회원가입 DTO', type: CreateUserDto })
   @ApiCreatedResponse({
     description: '회원가입 완료',
+    type: CreateUserDto,
   })
   async signup(@Body() dto: CreateUserDto) {
     return await this.authService.signup(dto);
@@ -71,6 +74,16 @@ export class AuthController {
         - 로그인 성공 시, Access/Refresh Token이 쿠키에 저장
         - Redis에 Refresh Token 저장
     `,
+  })
+  @ApiCreatedResponse({
+    description: '로그인 완료',
+    type: CreateUserDto,
+  })
+  @ApiNotFoundResponse({
+    description: '해당 이메일을 찾을 수 없음',
+  })
+  @ApiBadRequestResponse({
+    description: '비밀번호 불일치',
   })
   @ApiBody({ description: '로그인 DTO', type: LoginUserDto })
   @ApiConsumes('application/x-www-form-urlencoded')
@@ -101,6 +114,9 @@ export class AuthController {
         - 메일에 비밀번호 변경 토큰을 URL에 추가
     `,
   })
+  @ApiCreatedResponse({
+    description: '비밀번호 변경 메일 전송 성공',
+  })
   @ApiBody({ description: '이메일 DTO', type: EmailDto })
   @ApiConsumes('application/x-www-form-urlencoded')
   async findPassword(@Body() dto: EmailDto) {
@@ -116,6 +132,9 @@ export class AuthController {
       - 세부사항:
         - 메일 URL에 있는 토큰이 일치한 경우만 변경 가능
     `,
+  })
+  @ApiCreatedResponse({
+    description: '비밀번호 변경 성공',
   })
   @ApiBody({ description: '비밀번호 변경 DTO', type: UpdatePasswordDto })
   @ApiConsumes('application/x-www-form-urlencoded')
@@ -136,6 +155,9 @@ export class AuthController {
         - 인증번호는 Redis에 회원의 이메일을 key값으로 저장
     `,
   })
+  @ApiCreatedResponse({
+    description: '이메일 인증번호 전송 성공',
+  })
   @ApiBody({ description: '이메일 DTO', type: EmailDto })
   @ApiConsumes('application/x-www-form-urlencoded')
   async sendOTP(@Body() emailDto: EmailDto) {
@@ -151,6 +173,9 @@ export class AuthController {
       - 세부사항:
         - Redis에 회원의 이메일로 저장된 인증번호가 일치하는지 확인
     `,
+  })
+  @ApiCreatedResponse({
+    description: '인증번호 확인 성공',
   })
   @ApiConsumes('application/x-www-form-urlencoded')
   async checkOTP(@Body() dto: EmailValidationDto) {
@@ -190,6 +215,9 @@ export class AuthController {
       - 세부사항:
         - 로그인 시(Access Token을 보유할 시) 접근 가능
     `,
+  })
+  @ApiOkResponse({
+    description: '개인 정보 확인',
   })
   async findUserInfo(@Req() req: RequestUserInterface) {
     return req.user;

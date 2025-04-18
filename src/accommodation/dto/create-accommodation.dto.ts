@@ -1,13 +1,7 @@
-import {
-  IsArray,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { AccommodationType } from '@accommodation/entities/accommodation-type.enum';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 
 export class CreateAccommodationDto {
   @IsString()
@@ -44,16 +38,15 @@ export class CreateAccommodationDto {
   })
   information: string;
 
-  @IsArray()
-  @IsString({ each: true })
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === '' || value === null) return undefined;
-  })
   @ApiPropertyOptional({
-    type: [String],
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
     description: '숙소 이미지(10개 이하)',
     default: null,
   })
-  accommodationImgs?: string[];
+  accommodationImgs?: any;
 }

@@ -1,14 +1,8 @@
-import {
-  IsArray,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Scale } from '../entities/scale.enum';
 import { Fuel } from '../entities/fuel.enum';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 
 export class CreateCarDto {
   @IsString()
@@ -67,18 +61,17 @@ export class CreateCarDto {
   })
   fuel?: Fuel;
 
-  @IsArray()
-  @IsString({ each: true })
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === '' || value === null) return undefined;
-  })
   @ApiPropertyOptional({
-    type: [String],
-    description: '차량 이미지',
+    type: 'array',
+    items: {
+      type: 'string',
+      format: 'binary',
+    },
+    description: '차량 이미지(10개 까지 가능)',
     default: null,
   })
-  carImgs?: string[];
+  carImgs?: any;
 
   @IsString()
   @IsOptional()

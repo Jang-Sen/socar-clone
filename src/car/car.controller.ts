@@ -17,6 +17,9 @@ import { CarService } from './car.service';
 import {
   ApiBody,
   ApiConsumes,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
@@ -32,6 +35,7 @@ import { Fuel } from '@car/entities/fuel.enum';
 import * as XLSX from 'xlsx';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
+import { FindCarsDto } from '@car/dto/car-response.dto';
 
 @ApiTags('차량 API')
 @Controller('car')
@@ -52,7 +56,15 @@ export class CarController {
         - 정렬 기능 제공 (예: 최근 등록순)
         - Redis에 차량 조회 데이터 저장 (TTL: 600)
         - 조회 데이터가 Redis에 저장된 데이터와 일치할 경우, Redis에 저장되어 있는 차량 데이터로 조회 (캐싱)
+        - 차량명, 등급, 연료, 연식 인덱싱 처리로 인해 검색 속도 증가
     `,
+  })
+  @ApiOkResponse({
+    description: '차량 조회 완료',
+    type: FindCarsDto,
+  })
+  @ApiNotFoundResponse({
+    description: '차량이 존재하지 않음',
   })
   async findAll(@Query() pageOptionsDto: PageOptionsDto) {
     return await this.carService.findAll(pageOptionsDto);
@@ -65,6 +77,9 @@ export class CarController {
     description: `
     DB에 등록되어 있는 차량의 ID로 차량을 조회합니다.
     `,
+  })
+  @ApiOkResponse({
+    description: '차량 상세 조회',
   })
   @ApiParam({
     name: 'id',
@@ -88,6 +103,9 @@ export class CarController {
         - Redis에 저장되어있는 차량 조회 데이터 삭제 (데이터 일관성 보장)
     `,
   })
+  @ApiCreatedResponse({
+    description: '차량 등록 완료',
+  })
   @ApiBody({ description: '차량 등록 DTO', type: CreateCarDto })
   @ApiConsumes('multipart/form-data')
   async create(
@@ -108,6 +126,9 @@ export class CarController {
         - ${Role.ADMIN}만 접근 가능
         - Redis에 저장되어있는 차량 조회 데이터 삭제 (데이터 일관성 보장)
     `,
+  })
+  @ApiCreatedResponse({
+    description: '엑셀 파일 업로드 성공',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -176,6 +197,9 @@ export class CarController {
         - Redis에 저장되어있는 차량 조회 데이터 삭제 (데이터 일관성 보장)
     `,
   })
+  @ApiOkResponse({
+    description: '차량 정보 수정 완료',
+  })
   @ApiParam({
     name: 'id',
     description: '차량 ID',
@@ -204,6 +228,9 @@ export class CarController {
         - ${Role.ADMIN}만 접근 가능
         - Redis에 저장되어있는 차량 조회 데이터 삭제 (데이터 일관성 보장)
     `,
+  })
+  @ApiOkResponse({
+    description: '차량 삭제 완료',
   })
   @ApiParam({
     name: 'id',

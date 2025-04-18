@@ -166,4 +166,34 @@ export class UserService {
 
     return '프로필 사진 수정 완료';
   }
+
+  // 유저 생성 (관리자)
+  async createUserFromAdmin(dto: CreateUserDto, profileImg?: BufferedFile[]) {
+    const existing = await this.repository.findOneBy({ email: dto.email });
+
+    if (existing) {
+      throw new BadRequestException('이미 존재하는 회원입니다.');
+    }
+
+    const user = this.repository.create({
+      provider: Provider.LOCAL,
+      ...dto,
+    });
+    const saveUser = await this.repository.save(user);
+
+    const profileUrl = profileImg.length
+      ? await this.minioClientService.profileImgUpload(
+          saveUser,
+          profileImg,
+          'profile',
+        )
+      : [];
+
+    if (profileUrl.length > 0) {
+      saveUser.profileImg = profileUrl;
+      await this.repository.save(saveUser);
+    }
+
+    return user;
+  }
 }
