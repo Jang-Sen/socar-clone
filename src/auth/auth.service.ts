@@ -20,7 +20,8 @@ export class AuthService {
     private readonly mailService: MailService,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
-  ) {}
+  ) {
+  }
 
   // 회원가입 로직
   async signup(dto: CreateUserDto) {
@@ -137,7 +138,7 @@ export class AuthService {
     // 이메일 전송
     await this.mailService.sendMail({
       to: email,
-      subject: 'socar-clone 비밀번호 변경에 관한 메일입니다.',
+      subject: 'WAVOCAR 비밀번호 변경에 관한 메일입니다.',
       text: `비밀번호 변경 url: ${url}`,
     });
   }
@@ -151,7 +152,7 @@ export class AuthService {
 
     const result = await this.mailService.sendMail({
       to: email,
-      subject: 'socar-clone 인증번호 발송 메일입니다.',
+      subject: 'WAVOCAR 인증번호 발송 메일입니다.',
       text: `인증번호는 ${otpNum} 입니다.`,
     });
 
