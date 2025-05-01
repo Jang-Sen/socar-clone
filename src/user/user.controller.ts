@@ -30,16 +30,14 @@ import { UpdateUserDto } from '@user/dto/update-user.dto';
 import { BufferedFile } from '@minio-client/interface/file.model';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { PageOptionsDto } from '@common/dto/page-options.dto';
-import {
-  CreateUserResponseDto,
-  FindAllUsersResponseDto,
-} from '@user/dto/user-response.dto';
+import { CreateUserResponseDto, FindAllUsersResponseDto } from '@user/dto/user-response.dto';
 import { CreateUserDto } from '@user/dto/create-user.dto';
 
 @ApiTags('유저 API')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) {
+  }
 
   // 전체 회원 조회
   @Get('/all')
@@ -125,7 +123,7 @@ export class UserController {
     return await this.userService.updateProfileByToken(req.user, dto, img);
   }
 
-  @Post('create')
+  @Post('/create')
   @UseGuards(RoleGuard(Role.ADMIN))
   @UseInterceptors(FilesInterceptor('profileImg'))
   @ApiConsumes('multipart/form-data')

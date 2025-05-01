@@ -17,6 +17,7 @@ import { MinioClientModule } from '@minio-client/minio-client.module';
 import { CommentModule } from '@comment/comment.module';
 import { ReserveModule } from './reserve/reserve.module';
 import { ProfileModule } from './profile/profile.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { ProfileModule } from './profile/profile.module';
     CommentModule,
     ReserveModule,
     ProfileModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

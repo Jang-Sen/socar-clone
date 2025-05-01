@@ -1,7 +1,8 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '@user/entities/user.entity';
 import { Gender } from '@root/profile/entities/gender.enum';
 import { Grade } from '@root/profile/entities/grade.enum';
+import { Payment } from '@root/payment/entities/payment.entity';
 
 @Entity()
 export class Profile {
@@ -34,4 +35,7 @@ export class Profile {
     nullable: true,
   })
   public grade?: Grade;
+
+  @OneToMany(() => Payment, (payment: Payment) => payment.profile)
+  public payments: Payment[];
 }
