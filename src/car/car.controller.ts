@@ -42,7 +42,8 @@ import { FindCarsDto } from '@car/dto/car-response.dto';
 export class CarController {
   private readonly logger = new Logger();
 
-  constructor(private readonly carService: CarService) {}
+  constructor(private readonly carService: CarService) {
+  }
 
   // 전체 찾기 API
   @Get('/findAll')
@@ -112,6 +113,9 @@ export class CarController {
     @Body() dto: CreateCarDto,
     @UploadedFiles() carImgs?: BufferedFile[],
   ) {
+    console.log('Body', dto);
+    console.log('Images', carImgs);
+
     return await this.carService.create(dto, carImgs);
   }
 
@@ -145,6 +149,7 @@ export class CarController {
     },
   })
   async insertExcel(@UploadedFile() file: any) {
+    console.log(file);
     const workBook = XLSX.read(file.buffer, { type: 'buffer' });
     const sheet = workBook.Sheets[workBook.SheetNames[0]];
     const datas: any[] = XLSX.utils.sheet_to_json(sheet, { defval: null });

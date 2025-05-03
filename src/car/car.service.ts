@@ -27,7 +27,8 @@ export class CarService {
     private readonly cache: Cache,
     @Inject(REDIS_CLIENT)
     private readonly redisClient: Redis,
-  ) {}
+  ) {
+  }
 
   // 전체 찾기 로직
   async findAll(pageOptionsDto: PageOptionsDto): Promise<PageDto<Car>> {
@@ -123,7 +124,7 @@ export class CarService {
     const result = this.repository.create(dto);
     const savedCar = await this.repository.save(result);
 
-    if (carImgs.length) {
+    if (carImgs?.length) {
       savedCar.carImgs = await this.minioClientService.carImgsUpload(
         savedCar,
         carImgs,
