@@ -3,6 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Scale } from '../entities/scale.enum';
 import { Fuel } from '../entities/fuel.enum';
 import { Type } from 'class-transformer';
+import { CarStatus } from '@car/entities/carStatus.enum';
 
 export class CreateCarDto {
   @IsString()
@@ -77,4 +78,13 @@ export class CreateCarDto {
   @IsOptional()
   @ApiPropertyOptional({ description: '추가 사항' })
   memo?: string;
+
+  @IsEnum(CarStatus)
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: '차량 상태',
+    enum: CarStatus,
+    default: CarStatus.Available,
+  })
+  carStatus?: CarStatus;
 }

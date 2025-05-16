@@ -32,6 +32,7 @@ import { RoleGuard } from '@auth/guards/role.guard';
 import { PageOptionsDto } from '@common/dto/page-options.dto';
 import { CreateUserResponseDto, FindAllUsersResponseDto } from '@user/dto/user-response.dto';
 import { CreateUserDto } from '@user/dto/create-user.dto';
+import { ResetPasswordDto } from '@user/dto/reset-password.dto';
 
 @ApiTags('유저 API')
 @Controller('user')
@@ -148,5 +149,21 @@ export class UserController {
     @UploadedFiles() profileImg?: BufferedFile[],
   ) {
     return await this.userService.createUserFromAdmin(dto, profileImg);
+  }
+
+  @Post('/reset/password')
+  @UseGuards(AccessTokenGuard)
+  @ApiOperation({
+    summary: '로그인 후, 비밀번호 변경',
+    description: `
+    로그인한 회원이 비밀번호를 변경합니다.
+    `,
+  })
+  @ApiBody({
+    description: '새 비밀번호',
+    type: ResetPasswordDto,
+  })
+  async resetPasswordAfterLogin(@Req() req: RequestUserInterface, @Body() dto: ResetPasswordDto) {
+    return await this.userService.resetPasswordAfterLogin(req.user, dto);
   }
 }

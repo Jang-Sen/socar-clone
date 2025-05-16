@@ -4,6 +4,7 @@ import { Scale } from '@car/entities/scale.enum';
 import { Fuel } from '@car/entities/fuel.enum';
 import { Comment } from '@comment/entities/comment.entity';
 import { Reserve } from '@root/reserve/entities/reserve.entity';
+import { CarStatus } from '@car/entities/carStatus.enum';
 
 @Index(['carName', 'grade', 'fuel', 'carYear'])
 @Entity()
@@ -53,6 +54,14 @@ export class Car extends Base {
 
   @Column({ nullable: true })
   public memo?: string;
+
+  @Column({
+    type: 'enum',
+    enum: CarStatus,
+    default: CarStatus.Available,
+    nullable: true,
+  })
+  public carStatus: CarStatus;
 
   @OneToMany(() => Comment, (comment: Comment) => comment.car)
   public comments: Comment[];

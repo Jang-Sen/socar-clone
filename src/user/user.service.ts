@@ -1,11 +1,4 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
@@ -22,6 +15,7 @@ import { PageMetaDto } from '@common/dto/page-meta.dto';
 import { PageDto } from '@common/dto/page.dto';
 import { UpdateUserDto } from '@user/dto/update-user.dto';
 import { BufferedFile } from '@minio-client/interface/file.model';
+import { ResetPasswordDto } from '@user/dto/reset-password.dto';
 
 @Injectable()
 export class UserService {
@@ -33,7 +27,8 @@ export class UserService {
     private readonly minioClientService: MinioClientService,
     @Inject(CACHE_MANAGER)
     private cache: Cache,
-  ) {}
+  ) {
+  }
 
   // 유저 생성 로직
   async createUser(dto: CreateUserDto) {
@@ -139,7 +134,7 @@ export class UserService {
     const redisUserId: string = await this.cache.get(user.id);
 
     // 비교
-    const result = bcrypt.compare(refreshToken, redisUserId);
+    const result = await bcrypt.compare(refreshToken, redisUserId);
 
     if (result) {
       return user;
@@ -183,10 +178,10 @@ export class UserService {
 
     const profileUrl = profileImg.length
       ? await this.minioClientService.profileImgUpload(
-          saveUser,
-          profileImg,
-          'profile',
-        )
+        saveUser,
+        profileImg,
+        'profile',
+      )
       : [];
 
     if (profileUrl.length > 0) {
@@ -195,5 +190,27 @@ export class UserService {
     }
 
     return user;
+  }
+
+  // 로그인 후, 패스워드 변경 로직
+  async resetPasswordAfterLogin(user: User, dto: ResetPasswordDto) {
+    const existing = await this.findBy('email', user.email);
+
+    if (existing.provider !== Provider.LOCAL) {
+      throw new BadRequestException('소셜 로그인 고객은 이용할 수 없습니다.');
+    }
+
+    const genSalt = await bcrypt.genSalt(10);
+    const hashNewPassword = await bcrypt.hash(dto.password, genSalt);
+
+    const result = await this.repository.update(existing.id, {
+      password: hashNewPassword,
+    });
+
+    if (!result.affected) {
+      throw new BadRequestException('Bad Request');
+    }
+
+    return 'Update Password';
   }
 }

@@ -1,14 +1,9 @@
-import {
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsString,
-  MinLength,
-} from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Sort } from '@common/constant/sort.constant';
 import { Type } from 'class-transformer';
 import { Fuel } from '@car/entities/fuel.enum';
+import { CarStatus } from '@car/entities/carStatus.enum';
 
 export class PageOptionsDto {
   @IsString()
@@ -32,6 +27,29 @@ export class PageOptionsDto {
   @IsOptional()
   @ApiPropertyOptional({ description: '연식' })
   readonly carYear?: number;
+
+  @IsEnum(CarStatus)
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: '차량 상태',
+    enum: CarStatus,
+    default: CarStatus.Available,
+  })
+  readonly carStatus: CarStatus;
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: '차량 가격 최소값',
+  })
+  readonly minCarPrice: number;
+
+  @Type(() => Number)
+  @IsNumber()
+  @IsOptional()
+  @ApiPropertyOptional({ description: '차량 가격 최대값' })
+  readonly maxCarPrice: number;
 
   @IsString()
   @IsEnum(Sort)

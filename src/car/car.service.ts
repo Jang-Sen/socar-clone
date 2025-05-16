@@ -61,6 +61,24 @@ export class CarService {
       });
     }
 
+    if (pageOptionsDto.carStatus) {
+      queryBuilder.andWhere('car.carStatus = :carStatus', {
+        carStatus: pageOptionsDto.carStatus,
+      });
+    }
+
+    if (pageOptionsDto.minCarPrice) {
+      queryBuilder.andWhere('car.price >= :minPrice', {
+        minPrice: pageOptionsDto.minCarPrice,
+      });
+    }
+
+    if (pageOptionsDto.maxCarPrice) {
+      queryBuilder.andWhere('car.price <= :maxPrice', {
+        maxPrice: pageOptionsDto.maxCarPrice,
+      });
+    }
+
     const sortOption = SortValue[pageOptionsDto.sort];
 
     queryBuilder
